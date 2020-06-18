@@ -1,7 +1,6 @@
 import mongoose, { Document } from 'mongoose'
 
-export type CategoryDocument = Document & {
-  id: number;
+export type UserDocument = Document & {
   firstName: string;
   lastName: string;
   email: string;
@@ -9,6 +8,7 @@ export type CategoryDocument = Document & {
   password: string;
   role: string;
   createdAt: Date;
+  active: boolean;
   wishList: mongoose.Types.ObjectId[]; //* array of product IDs
   orderId: mongoose.Types.ObjectId[]; //* array of order IDs
 }
@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema({
       'Please fill a valid email address',
     ],
   },
+  role: {
+    type: String,
+    required: true,
+    trim: true,
+    enum: ['admin', 'user'],
+  },
   username: {
     type: String,
     required: true,
@@ -51,11 +57,9 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     select: false, //! password won't be sent to Client
   },
-  role: {
-    type: String,
-    required: true,
-    trim: true,
-    enum: ['admin', 'user'],
+  active: {
+    type: Boolean,
+    default: true,
   },
   createdAt: {
     type: Date,
@@ -65,4 +69,4 @@ const userSchema = new mongoose.Schema({
   orderId: [mongoose.Types.ObjectId],
 })
 
-export default mongoose.model<CategoryDocument>('User', userSchema)
+export default mongoose.model<UserDocument>('User', userSchema)

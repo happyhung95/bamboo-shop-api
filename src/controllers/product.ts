@@ -60,8 +60,7 @@ export const createProduct = async (
   next: NextFunction
 ) => {
   try {
-    const { name, manufacturer, variants, category } = req.body
-    const id = 2
+    const { id, name, manufacturer, variants, category } = req.body
     const product = new Product({
       id,
       name,
@@ -78,5 +77,35 @@ export const createProduct = async (
     } else {
       next(new InternalServerError('Internal Server Error', error))
     }
+  }
+}
+
+//* PUT /admin/product/:productId
+export const updateProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const update = req.body
+    const productId = req.params.productId
+    const updatedProduct = await ProductService.update(productId, update)
+    res.json(updatedProduct)
+  } catch (error) {
+    next(new NotFoundError('Product not found', error))
+  }
+}
+
+//* DELETE /admin/product/:productId
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await ProductService.deleteProduct(req.params.productId)
+    res.status(204).end()
+  } catch (error) {
+    next(new NotFoundError('Product not found', error))
   }
 }
