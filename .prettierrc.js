@@ -4,5 +4,7 @@ module.exports = {
   useTabs: false,
   jsxBracketSameLine: false,
   semi: false,
-  singleQuote: true
+  singleQuote: true,
+  arrowParens: "avoid",
+  printWidth: 120,
 }

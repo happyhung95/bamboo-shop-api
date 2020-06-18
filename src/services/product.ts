@@ -11,9 +11,7 @@ function findAll(): Promise<ProductDocument[]> {
   return Product.find().sort({ name: 1 }).exec() // Return a Promise, without pagination
 }
 
-async function findAllWithPagination(
-  query: any
-): Promise<WithPagination<ProductDocument>> {
+async function findAllWithPagination(query: any): Promise<WithPagination<ProductDocument>> {
   let { pageLimit, pageNumber } = query
   if (!pageLimit || !pageNumber) {
     throw new Error('require 2 parameters pageLimit and pageNumber')
@@ -32,10 +30,7 @@ async function findAllWithPagination(
 
   const skippedProducts = pageLimit * (pageNumber - 1) // no need to skip on page 1
 
-  const data = await Product.find()
-    .skip(skippedProducts)
-    .limit(pageLimit)
-    .exec()
+  const data = await Product.find().skip(skippedProducts).limit(pageLimit).exec()
 
   return { pageLimit, pageNumber, totalProducts, data }
 }
@@ -66,7 +61,7 @@ function findByFilter(query): Promise<ProductDocument[]> {
 function findById(productId: string): Promise<ProductDocument> {
   return Product.findById(productId)
     .exec() // .exec() will return a true Promise
-    .then((product) => {
+    .then(product => {
       if (!product) {
         throw new Error(`Product ${productId} not found`)
       }
@@ -78,13 +73,10 @@ function create(product: ProductDocument): Promise<ProductDocument> {
   return product.save()
 }
 
-function update(
-  productId: string,
-  update: Partial<ProductDocument>
-): Promise<ProductDocument> {
+function update(productId: string, update: Partial<ProductDocument>): Promise<ProductDocument> {
   return Product.findById(productId)
     .exec()
-    .then((product) => {
+    .then(product => {
       if (!product) {
         throw new Error(`Product ${productId} not found`)
       }
@@ -96,13 +88,10 @@ function update(
         product.manufacturer = update.manufacturer
       }
       if (update.variants) {
-        update.variants.forEach((updatedVar) => {
+        update.variants.forEach(updatedVar => {
           //* update the variant if it matches the color AND size
-          const match = product.variants.some((currentVar) => {
-            if (
-              updatedVar.color === currentVar.color &&
-              updatedVar.size === currentVar.size
-            ) {
+          const match = product.variants.some(currentVar => {
+            if (updatedVar.color === currentVar.color && updatedVar.size === currentVar.size) {
               currentVar.inStock = updatedVar.inStock
               currentVar.price = updatedVar.price
               return true // match found => break the .some() loop
