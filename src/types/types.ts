@@ -5,5 +5,3 @@ export type TokenPayload = {
   id: string
   role: string
 }
-
-export const ADMIN = 'admin'

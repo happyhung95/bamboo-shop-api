@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
+
 import User from '../models/User'
 import UserService from '../services/user'
-import { NotFoundError, BadRequestError, InternalServerError } from '../helpers/apiError'
+import { NotFoundError, BadRequestError, InternalServerError, UnauthorizedError } from '../helpers/apiError'
+import WHITELIST from '../helpers/adminWhitelist'
 
 //* PUT /admin/user/ban/:username
 export const changeAccountStatus = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,6 +21,9 @@ export const changeAccountStatus = async (req: Request, res: Response, next: Nex
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id, firstName, lastName, email, role, username, password } = req.body
+
+    //! only emails in whiltelist can create admin account
+    if (role === 'admin' && WHITELIST.includes(email) === false) next(new UnauthorizedError('User not authorized'))
 
     const user = new User({
       id,

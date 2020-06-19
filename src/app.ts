@@ -18,6 +18,7 @@ import adminRouter from './routers/admin'
 import userRouter from './routers/user'
 
 import apiErrorHandler from './middlewares/apiErrorHandler'
+import checkAdminAuth from './middlewares/checkAdminAuth'
 import apiContentType from './middlewares/apiContentType'
 import movie from './services/movie'
 

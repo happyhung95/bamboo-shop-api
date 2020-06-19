@@ -49,11 +49,6 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       variants,
       category,
     })
-    // extract token from request's header
-    const { token } = req.headers
-    // check if user is admin
-    const isAuthorized = UserService.verifyAuthorization(token as string, ADMIN)
-    if (!isAuthorized) throw new UnauthorizedError('User not authorized')
 
     await ProductService.create(product)
     res.status(201).json(product)
