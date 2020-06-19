@@ -3,15 +3,15 @@ import jwt from 'jsonwebtoken'
 
 import User, { UserDocument } from '../models/User'
 import { JWT_SECRET } from './../util/secrets'
-import { Token, TokenPayload } from '../types/types'
-import { UnauthorizedError } from '../helpers/apiError'
+import { Token } from '../types/types'
+import ADMIN_WHITELIST from '../helpers/adminWhitelist'
 
 function changeAccountStatus(userId: string, ban: boolean): Promise<UserDocument> {
   return User.findById(userId)
     .exec()
     .then(user => {
       if (!user) {
-        throw new Error(`User with ${userId} not found`)
+        throw new Error(`User ${userId} not found`)
       }
       if (ban) {
         user.active = false
@@ -39,6 +39,7 @@ function findById(userId: string): Promise<UserDocument> {
     })
 }
 
+//*sign in
 function authenticate(username: string, password: string): Promise<Token | null> {
   return User.findOne({ username: username })
     .select('password role')
@@ -59,14 +60,36 @@ function authenticate(username: string, password: string): Promise<Token | null>
     })
 }
 
-function verifyAuthorization(token: string, authorizedRole: string): boolean {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET)
-    if ((decoded as TokenPayload).role === authorizedRole) return true
-    return false
-  } catch (error) {
-    throw new UnauthorizedError('Unauthorized')
-  }
+function update(userId: string, update: Partial<UserDocument>): Promise<UserDocument> {
+  return User.findById(userId)
+    .exec()
+    .then(user => {
+      if (!user) {
+        throw new Error(`User ${userId} not found`)
+      }
+      if (update.id) {
+        user.id = update.id
+      }
+      if (update.firstName) {
+        user.firstName = update.firstName
+      }
+      if (update.lastName) {
+        user.lastName = update.lastName
+      }
+      if (update.username) {
+        user.username = update.username
+      }
+      if (update.role) {
+        if (update.role === 'admin') {
+          if (ADMIN_WHITELIST.includes(user.email)) {
+            user.role = update.role
+          } else throw new Error('User not authorize')
+        }
+        user.role = update.role
+      }
+
+      return user.save()
+    })
 }
 
 export default {
@@ -74,5 +97,5 @@ export default {
   create,
   findById,
   authenticate,
-  verifyAuthorization,
+  update,
 }

@@ -1,4 +1,5 @@
 import Product, { ProductDocument } from '../models/Product'
+import ApiError, { InvalidRequestError } from '../helpers/apiError'
 
 type WithPagination<T> = {
   pageNumber: number;
@@ -11,10 +12,11 @@ function findAll(): Promise<ProductDocument[]> {
   return Product.find().sort({ name: 1 }).exec() // Return a Promise, without pagination
 }
 
-async function findAllWithPagination(query: any): Promise<WithPagination<ProductDocument>> {
+async function findAllWithPagination(query: any): Promise<ApiError | WithPagination<ProductDocument>> {
   let { pageLimit, pageNumber } = query
+
   if (!pageLimit || !pageNumber) {
-    throw new Error('require 2 parameters pageLimit and pageNumber')
+    return new InvalidRequestError('Invalid request - Require both pageLimit and pageNumber parameters for pagination')
   }
 
   pageNumber = Number(query.pageNumber) // minimum 1
@@ -25,7 +27,7 @@ async function findAllWithPagination(query: any): Promise<WithPagination<Product
 
   // validate pageNumber
   if (pageNumber < 1 || pageNumber > totalPages) {
-    throw new Error('invalid pageNumber')
+    return new InvalidRequestError('Invalid pageNumber')
   }
 
   const skippedProducts = pageLimit * (pageNumber - 1) // no need to skip on page 1
@@ -80,7 +82,9 @@ function update(productId: string, update: Partial<ProductDocument>): Promise<Pr
       if (!product) {
         throw new Error(`Product ${productId} not found`)
       }
-
+      if (update.id) {
+        product.id = update.id
+      }
       if (update.name) {
         product.name = update.name
       }

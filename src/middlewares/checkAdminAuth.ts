@@ -11,13 +11,13 @@ export default function (req: Request, res: Response, next: NextFunction) {
     const { token } = req.headers
     // check if user is admin
     const decoded = jwt.verify(token as string, JWT_SECRET)
-
+    // call next() if role from payload is 'admin'
     if ((decoded as TokenPayload).role === 'admin') {
       next()
     } else {
-      next(new UnauthorizedError('User not authorized'))
+      next(new UnauthorizedError())
     }
   } catch (error) {
-    next(new UnauthorizedError('User not authorized'))
+    next(new UnauthorizedError())
   }
 }

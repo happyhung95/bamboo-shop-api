@@ -9,15 +9,17 @@ export default function (req: Request, res: Response, next: NextFunction) {
   try {
     // extract token from request's header
     const { token } = req.headers
-    // check if user is admin
+    // verify token
     const decoded = jwt.verify(token as string, JWT_SECRET)
 
-    if ((decoded as TokenPayload).role === 'user') {
+    const authorizedRoles = ['user', 'admin']
+    // call next() if role from payload is 'user' or 'admin'
+    if (authorizedRoles.includes((decoded as TokenPayload).role)) {
       next()
     } else {
-      next(new UnauthorizedError('User not authorized'))
+      next(new UnauthorizedError())
     }
   } catch (error) {
-    next(new UnauthorizedError('User not authorized'))
+    next(new UnauthorizedError())
   }
 }

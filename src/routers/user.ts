@@ -1,6 +1,7 @@
 import express from 'express'
 
-import { createUser, findById, signIn } from '../controllers/user'
+import { createUser, findById, signIn, updateUser, resetPassword } from '../controllers/user'
+import checkUserAuth from '../middlewares/checkUserAuth'
 
 const router = express.Router()
 
@@ -8,5 +9,7 @@ const router = express.Router()
 router.post('/signup', createUser)
 router.post('/signin', signIn)
 router.get('/:userId', findById)
+router.patch('/:userId', checkUserAuth, updateUser) //! require User / admin authorization
+router.post('/forgotpassword', resetPassword)
 
 export default router

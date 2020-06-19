@@ -1,30 +1,42 @@
 import { Request, Response, NextFunction } from 'express'
 import Product from '../models/Product'
 import ProductService from '../services/product'
-import UserService from '../services/user'
-import { NotFoundError, BadRequestError, InternalServerError, UnauthorizedError } from '../helpers/apiError'
-import { ADMIN } from '../types/types'
+import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } from '../helpers/apiError'
 
 //* GET /products
 export const findAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
     //* req.query is optional so need to check
     if (Object.keys(req.query).length !== 0) {
-      res.status(200).json(await ProductService.findAllWithPagination(req.query))
+      const response = await ProductService.findAllWithPagination(req.query)
+
+      // if response = InvalidRequestError
+      if (response instanceof ApiError) {
+        next(response)
+      }
+      // if no error
+      res.status(200).json()
     } else {
+      // no parameters = return data without pagination
       res.status(200).json(await ProductService.findAll())
     }
   } catch (error) {
-    next(new NotFoundError('Product not found', error))
+    next(new InternalServerError('Internal Server Error', error))
   }
 }
 
 //* GET /products/filterBy
 export const findByFilter = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(200).json(await ProductService.findByFilter(req.query))
+    const data = await ProductService.findByFilter(req.query)
+
+    if (data.length === 0) {
+      next(new NotFoundError('Products not found'))
+    }
+
+    res.status(200).json()
   } catch (error) {
-    next(new NotFoundError('Product not found', error))
+    next(new InternalServerError('Internal Server Error', error))
   }
 }
 
@@ -33,15 +45,19 @@ export const findById = async (req: Request, res: Response, next: NextFunction) 
   try {
     res.status(200).json(await ProductService.findById(req.params.productId))
   } catch (error) {
-    next(new NotFoundError('Product not found', error))
+    if (error.name === 'CastError') {
+      next(new NotFoundError('Product not found', error))
+    } else {
+      next(new InternalServerError('Internal Server Error', error))
+    }
   }
 }
 
 //* POST /admin/product
-//! require admin authorization
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id, name, manufacturer, variants, category } = req.body
+
     const product = new Product({
       id,
       name,
@@ -53,25 +69,29 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     await ProductService.create(product)
     res.status(201).json(product)
   } catch (error) {
-    if (error.name === 'Error') {
-      next(new BadRequestError('Invalid Request', error))
+    if (error.name === 'ValidationError') {
+      next(new InvalidRequestError('Invalid Request', error))
     } else {
       next(new InternalServerError('Internal Server Error', error))
     }
   }
 }
 
-//* PUT /admin/product/:productId
-//! require admin authorization
+//* PATCH /admin/product/:productId
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const update = req.body
     const productId = req.params.productId
+
     const updatedProduct = await ProductService.update(productId, update)
 
     res.json(updatedProduct)
   } catch (error) {
-    next(new NotFoundError('Product not found', error))
+    if (error.name === 'CastError') {
+      next(new NotFoundError('Product not found', error))
+    } else {
+      next(new InternalServerError('Internal Server Error', error))
+    }
   }
 }
 
@@ -81,6 +101,10 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
     await ProductService.deleteProduct(req.params.productId)
     res.status(204).end()
   } catch (error) {
-    next(new NotFoundError('Product not found', error))
+    if (error.name === 'CastError') {
+      next(new NotFoundError('Product not found', error))
+    } else {
+      next(new InternalServerError('Internal Server Error', error))
+    }
   }
 }

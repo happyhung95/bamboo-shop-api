@@ -2,18 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 
 import Movie from '../models/Movie'
 import MovieService from '../services/movie'
-import {
-  NotFoundError,
-  BadRequestError,
-  InternalServerError,
-} from '../helpers/apiError'
+import { NotFoundError, InvalidRequestError, InternalServerError } from '../helpers/apiError'
 
 // POST /movies
-export const createMovie = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const createMovie = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, publishedYear, genres, duration, characters } = req.body
 
@@ -29,7 +21,7 @@ export const createMovie = async (
     res.json(movie)
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError('Invalid Request', error))
+      next(new InvalidRequestError('Invalid Request', error))
     } else {
       next(new InternalServerError('Internal Server Error', error))
     }
@@ -37,11 +29,7 @@ export const createMovie = async (
 }
 
 // PUT /movies/:movieId
-export const updateMovie = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const updateMovie = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const update = req.body
     const movieId = req.params.movieId
@@ -53,11 +41,7 @@ export const updateMovie = async (
 }
 
 // DELETE /movies/:movieId
-export const deleteMovie = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const deleteMovie = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await MovieService.deleteMovie(req.params.movieId)
     res.status(204).end()
@@ -67,11 +51,7 @@ export const deleteMovie = async (
 }
 
 // GET /movies/:movieId
-export const findById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const findById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await MovieService.findById(req.params.movieId))
   } catch (error) {
@@ -80,11 +60,7 @@ export const findById = async (
 }
 
 // GET /movies
-export const findAll = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const findAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await MovieService.findAll())
   } catch (error) {
