@@ -1,6 +1,5 @@
 import mongoose, { Document } from 'mongoose'
 import { VarianDocument, variantSchema } from './subSchema/Variant'
-import { timeStamp } from 'console'
 
 export type ProductDocument = Document & {
   id: number;

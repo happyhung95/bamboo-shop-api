@@ -12,7 +12,7 @@ function findAll(): Promise<ProductDocument[]> {
   return Product.find().sort({ name: 1 }).exec() // Return a Promise, without pagination
 }
 
-async function findAllWithPagination(query: any): Promise<ApiError | WithPagination<ProductDocument>> {
+async function findAllWithPagination(query): Promise<ApiError | WithPagination<ProductDocument>> {
   let { pageLimit, pageNumber } = query
 
   if (!pageLimit || !pageNumber) {

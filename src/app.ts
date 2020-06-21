@@ -10,7 +10,7 @@ import mongoose from 'mongoose'
 import passport from 'passport'
 import bluebird from 'bluebird'
 
-import { MONGODB_URI, SESSION_SECRET } from './util/secrets'
+import { MONGODB_URI } from './util/secrets'
 
 import movieRouter from './routers/movie'
 import productRouter from './routers/product'
@@ -18,9 +18,7 @@ import adminRouter from './routers/admin'
 import userRouter from './routers/user'
 
 import apiErrorHandler from './middlewares/apiErrorHandler'
-import checkAdminAuth from './middlewares/checkAdminAuth'
 import apiContentType from './middlewares/apiContentType'
-import movie from './services/movie'
 
 const app = express()
 const mongoUrl = MONGODB_URI

@@ -1,6 +1,8 @@
 import mongoose, { Document } from 'mongoose'
 
 export type UserDocument = Document & {
+  id: number;
+  gooogleId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -19,6 +21,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    gooogleId: {
+      type: String,
+      trim: true,
+    },
     firstName: {
       type: String,
       required: true,
@@ -34,10 +40,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
       unique: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Please fill a valid email address',
-      ],
+      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
     },
     role: {
       type: String,
