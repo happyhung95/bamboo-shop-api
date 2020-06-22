@@ -12,7 +12,7 @@ function findAll(): Promise<ProductDocument[]> {
   return Product.find().sort({ name: 1 }).exec() // Return a Promise, without pagination
 }
 
-async function findAllWithPagination(query): Promise<ApiError | WithPagination<ProductDocument>> {
+async function findAllWithPagination(query: any): Promise<ApiError | WithPagination<ProductDocument>> {
   let { pageLimit, pageNumber } = query
 
   if (!pageLimit || !pageNumber) {
@@ -23,7 +23,7 @@ async function findAllWithPagination(query): Promise<ApiError | WithPagination<P
   pageLimit = Number(query.pageLimit) > 10 ? Number(query.pageLimit) : 10 // minimum 10
 
   const totalProducts = await Product.estimatedDocumentCount().exec()
-  const totalPages = totalProducts / pageLimit
+  const totalPages = totalProducts > pageLimit ? totalProducts / pageLimit : 1
 
   // validate pageNumber
   if (pageNumber < 1 || pageNumber > totalPages) {
@@ -37,7 +37,7 @@ async function findAllWithPagination(query): Promise<ApiError | WithPagination<P
   return { pageLimit, pageNumber, totalProducts, data }
 }
 
-function findByFilter(query): Promise<ProductDocument[]> {
+function findByFilter(query: any): Promise<ProductDocument[]> {
   const { name, category, availability, manufacturer, color } = query
   const filter: any = {}
 

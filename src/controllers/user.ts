@@ -25,11 +25,7 @@ export const changeAccountStatus = async (req: Request, res: Response, next: Nex
 //* POST /users/signup
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await UserService.findOrCreate(req.body)
-
-    if (user instanceof ApiError) {
-      next(user) // UnauthorizedError
-    }
+    const user = await UserService.create(req.body)
 
     res.status(201).json(user)
   } catch (error) {
@@ -41,18 +37,10 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
   }
 }
 
-//* POST /users/signin
-export const signIn = async (req: Request, res: Response, next: NextFunction) => {
+//* POST /users/signin OR /users/signin/google
+export const signInResponse = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, password } = req.body
-
-    const token = await UserService.authenticate(username, password)
-
-    if (!token) {
-      next(new NotFoundError('Account not found'))
-    }
-
-    res.status(201).json(token)
+    res.status(201).json({ data: req.user, token: req.body._token })
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))
   }
@@ -61,7 +49,7 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
 //* GET /users/:userId
 export const findById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(200).json(await UserService.findById(req.params.userId))
+    res.status(200).json(await User.findById(req.params.userId).exec())
   } catch (error) {
     if (error.name === 'CastError') {
       next(new NotFoundError('User not found', error))
@@ -97,11 +85,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 //* POST /users/forgotpassword
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email } = req.body
-    const token = await UserService.authenticate(username, password)
-    if (!token) next(new NotFoundError('Account not found'))
-
-    res.status(201).json(token)
+    res.status(201).json(req)
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new InvalidRequestError('Invalid Request', error))

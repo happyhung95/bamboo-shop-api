@@ -1,11 +1,8 @@
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 
 import User, { UserDocument } from '../models/User'
-import { JWT_SECRET } from './../util/secrets'
-import { Token } from '../types/types'
 import ADMIN_WHITELIST from '../helpers/adminWhitelist'
-import ApiError, { UnauthorizedError } from '../helpers/apiError'
+import ApiError, { UnauthorizedError, NotFoundError } from '../helpers/apiError'
 
 function changeAccountStatus(userId: string, ban: boolean): Promise<UserDocument> {
   return User.findById(userId)
@@ -23,18 +20,17 @@ function changeAccountStatus(userId: string, ban: boolean): Promise<UserDocument
     })
 }
 
-async function findOrCreate(reqBody, googleId = ''): Promise<ApiError | UserDocument> {
-  const { id, firstName, lastName, email, role, username, password } = reqBody
-  // find user by email, if found return user
-  const filter = { email: email }
-  const user = await User.findOne(filter).exec()
-  if (user) return user
+function create(reqBody: any): Promise<UserDocument> {
+  const { googleId = '', firstName, lastName, email, username } = reqBody
+  let { password } = reqBody
 
-  // create newUser if not exist in db
-  //! only emails in whitelist can create admin account
-  if (role === 'admin' && ADMIN_WHITELIST.includes(email) === false) return new UnauthorizedError('User not authorized')
-  const newUser = new User({
-    id,
+  //hash password for /signup route (with password but no googleId)
+  password = bcrypt.hashSync(password, 10)
+
+  // if email in the admin whitelist, create admin account
+  const role = ADMIN_WHITELIST.includes(email) ? 'admin' : 'user'
+
+  const user = new User({
     googleId,
     firstName,
     lastName,
@@ -43,43 +39,23 @@ async function findOrCreate(reqBody, googleId = ''): Promise<ApiError | UserDocu
     username,
     password,
   })
-  //hash password
-  newUser.password = bcrypt.hashSync(newUser.password, 10)
-  newUser.save()
-
-  return
+  return user.save()
 }
 
-function findById(userId: string): Promise<UserDocument> {
-  return User.findById(userId)
-    .exec() // .exec() will return a true Promise
-    .then(user => {
-      if (!user) {
-        throw new Error(`User ${userId} not found`)
-      }
-      return user
-    })
+function findByEmail(email: string): Promise<UserDocument | null> {
+  return User.findOne({ email }).exec() // .exec() will return a true Promise
 }
 
-//*sign in
-function authenticate(username: string, password: string): Promise<Token | null> {
-  return User.findOne({ username: username })
-    .select('password role')
-    .exec() // .exec() will return a true Promise
-    .then(async user => {
-      if (!user) {
-        throw new Error(`User ${username} not found`)
-      }
-      // validate password
-      const match = await bcrypt.compare(password, user.password)
-      if (match) {
-        // create JWT token and send it to client
-        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET) //TODO: add { expiresIn: '1h' }
-        return { token: token }
-      } else {
-        return null
-      }
-    })
+async function findOrCreate(parsedToken: any, googleId: string): Promise<ApiError | UserDocument> {
+  const { given_name: firstName, family_name: lastName, email } = parsedToken.payload
+  // find user by email, if found return user
+  const user = await findByEmail(email)
+  if (user) {
+    return user
+  } else {
+    // create newUser if not exist in db
+    return create({ firstName, lastName, email, googleId, username: email, password: googleId })
+  }
 }
 
 function update(userId: string, update: Partial<UserDocument>): Promise<ApiError | UserDocument> {
@@ -88,9 +64,6 @@ function update(userId: string, update: Partial<UserDocument>): Promise<ApiError
     .then((user): ApiError | UserDocument | PromiseLike<UserDocument> => {
       if (!user) {
         throw new Error(`User ${userId} not found`)
-      }
-      if (update.id) {
-        user.id = update.id
       }
       if (update.firstName) {
         user.firstName = update.firstName
@@ -116,8 +89,8 @@ function update(userId: string, update: Partial<UserDocument>): Promise<ApiError
 
 export default {
   changeAccountStatus,
+  create,
+  findByEmail,
   findOrCreate,
-  findById,
-  authenticate,
   update,
 }

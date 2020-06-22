@@ -15,7 +15,7 @@ export const findAll = async (req: Request, res: Response, next: NextFunction) =
         next(response)
       }
       // if no error
-      res.status(200).json()
+      res.status(200).json(response)
     } else {
       // no parameters = return data without pagination
       res.status(200).json(await ProductService.findAll())
@@ -57,7 +57,6 @@ export const findById = async (req: Request, res: Response, next: NextFunction) 
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id, name, manufacturer, variants, category } = req.body
-
     const product = new Product({
       id,
       name,
@@ -67,8 +66,10 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     })
 
     await ProductService.create(product)
+    console.log('in CreateProduct', product)
     res.status(201).json(product)
   } catch (error) {
+    console.log('error in createProduct', error)
     if (error.name === 'ValidationError') {
       next(new InvalidRequestError('Invalid Request', error))
     } else {

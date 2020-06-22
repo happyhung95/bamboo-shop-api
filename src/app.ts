@@ -12,13 +12,13 @@ import bluebird from 'bluebird'
 
 import { MONGODB_URI } from './util/secrets'
 
-import movieRouter from './routers/movie'
 import productRouter from './routers/product'
 import adminRouter from './routers/admin'
 import userRouter from './routers/user'
 
 import apiErrorHandler from './middlewares/apiErrorHandler'
 import apiContentType from './middlewares/apiContentType'
+import { GoogleStrategy } from './middlewares/authorization/verifyGoogle'
 
 const app = express()
 const mongoUrl = MONGODB_URI
@@ -48,8 +48,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(lusca.xframe('SAMEORIGIN'))
 app.use(lusca.xssProtection(true))
 
+//Use Passport
+app.use(passport.initialize())
+passport.use(GoogleStrategy)
+
 // Use router
-app.use('/api/v1/movies', movieRouter)
 app.use('/api/v1/products', productRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/users', userRouter)
