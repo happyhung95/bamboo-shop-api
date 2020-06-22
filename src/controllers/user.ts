@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import User from '../models/User'
+import User, { UserDocument } from '../models/User'
 import UserService from '../services/user'
 import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } from '../helpers/apiError'
 
@@ -8,8 +8,9 @@ import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } fro
 export const changeAccountStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { ban } = req.body
-    const username = req.params.username
+    if (ban === undefined) return next(new InvalidRequestError())
 
+    const username = req.params.username
     const updatedUser = await UserService.changeAccountStatus(username, ban)
 
     res.status(204).json(updatedUser)
@@ -26,8 +27,8 @@ export const changeAccountStatus = async (req: Request, res: Response, next: Nex
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await UserService.create(req.body)
-
-    res.status(201).json(user)
+    // user.toJson() removes the password field from created user object
+    res.status(201).json(user.toJSON())
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new InvalidRequestError('Invalid Request', error))
@@ -38,9 +39,9 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 }
 
 //* POST /users/signin OR /users/signin/google
-export const signInResponse = async (req: Request, res: Response, next: NextFunction) => {
+export const signIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(201).json({ data: req.user, token: req.body._token })
+    res.status(201).json(req.user)
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))
   }
@@ -62,13 +63,13 @@ export const findById = async (req: Request, res: Response, next: NextFunction) 
 //* PATCH /users/:userId
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    //will not fetch user if already exists from previous middleware
+    const currentUser = req.user ? req.user : await User.findById(req.params.userId).exec()
     const update = req.body
-    const userId = req.params.userId
+    const updatedUser = await UserService.update(currentUser as UserDocument, update)
 
-    const updatedUser = await UserService.update(userId, update)
-
-    if (updateUser instanceof ApiError) {
-      next(updateUser) // UnauthorizedError
+    if (updatedUser instanceof ApiError) {
+      next(updatedUser) // UnauthorizedError
     }
 
     res.status(204).json(updatedUser)
@@ -81,16 +82,57 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
   }
 }
 
-//TODO: finish this
-//* POST /users/forgotpassword
-export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+//* POST /users/changepassword
+export const renewPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(201).json(req)
+    if (!req.user) return next(new NotFoundError('User not found'))
+    if (!req.body.newPassword) return next(new InvalidRequestError())
+
+    const currentUser = req.user
+    const newPassword: string = req.body.newPassword
+    await UserService.updatePassword(currentUser as UserDocument, newPassword)
+
+    res.status(200).json({ message: 'Password updated successfully' })
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      next(new InvalidRequestError('Invalid Request', error))
+    if (error.name === 'CastError') {
+      next(new NotFoundError('User not found', error))
     } else {
       next(new InternalServerError('Internal Server Error', error))
     }
+  }
+}
+
+//* POST /users/forgotpassword
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.status(202).json({ message: 'Reset password link sent' })
+  } catch (error) {
+    next(new InternalServerError('Internal Server Error', error))
+  }
+}
+
+//* POST /users/resetpassword/
+export const verifyResetToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers['x-access-token'] || req.headers['authorization']
+    res.header('Authorization', token)
+    res.status(200).json({ message: 'Reset token is verified, user can reset password' })
+  } catch (error) {
+    next(new InternalServerError('Internal Server Error', error))
+  }
+}
+
+//* POST /users/resetpassword/verified
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { _id } = req.body._token
+    const { newPassword } = req.body
+    if (!newPassword) return next(new InvalidRequestError())
+    const currentUser = await User.findById(_id).exec()
+    await UserService.updatePassword(currentUser as UserDocument, newPassword)
+
+    res.status(200).json({ message: 'Password updated successfully' })
+  } catch (error) {
+    next(new InternalServerError('Internal Server Error', error))
   }
 }

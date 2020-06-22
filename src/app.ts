@@ -52,6 +52,14 @@ app.use(lusca.xssProtection(true))
 app.use(passport.initialize())
 passport.use(GoogleStrategy)
 
+// add CORS header
+app.use((req, res, next) => {
+  res.append('Access-Control-Allow-Origin', ['*'])
+  res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+  res.append('Access-Control-Allow-Headers', 'Content-Type')
+  next()
+})
+
 // Use router
 app.use('/api/v1/products', productRouter)
 app.use('/api/v1/admin', adminRouter)

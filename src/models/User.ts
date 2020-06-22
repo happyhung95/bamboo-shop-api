@@ -1,7 +1,7 @@
 import mongoose, { Document } from 'mongoose'
 
 export type UserDocument = Document & {
-  gooogleId: string;
+  googleId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -11,7 +11,6 @@ export type UserDocument = Document & {
   active: boolean;
   wishList: mongoose.Types.ObjectId[]; //* array of product IDs
   orders: mongoose.Types.ObjectId[]; //* array of order IDs
-  authenticate: Function;
 }
 
 const userSchema = new mongoose.Schema(
@@ -66,5 +65,11 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 )
+
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject()
+  delete obj.password
+  return obj
+}
 
 export default mongoose.model<UserDocument>('User', userSchema)

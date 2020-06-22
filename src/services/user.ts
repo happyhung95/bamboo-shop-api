@@ -3,13 +3,14 @@ import bcrypt from 'bcrypt'
 import User, { UserDocument } from '../models/User'
 import ADMIN_WHITELIST from '../helpers/adminWhitelist'
 import ApiError, { UnauthorizedError, NotFoundError } from '../helpers/apiError'
+import generateRandomPassword from '../util/generatePassword'
 
-function changeAccountStatus(userId: string, ban: boolean): Promise<UserDocument> {
-  return User.findById(userId)
+function changeAccountStatus(username: string, ban: boolean): Promise<UserDocument> {
+  return User.findOne({ username })
     .exec()
     .then(user => {
       if (!user) {
-        throw new Error(`User ${userId} not found`)
+        throw new Error(`User ${username} not found`)
       }
       if (ban) {
         user.active = false
@@ -24,7 +25,7 @@ function create(reqBody: any): Promise<UserDocument> {
   const { googleId = '', firstName, lastName, email, username } = reqBody
   let { password } = reqBody
 
-  //hash password for /signup route (with password but no googleId)
+  //hash password
   password = bcrypt.hashSync(password, 10)
 
   // if email in the admin whitelist, create admin account
@@ -53,38 +54,39 @@ async function findOrCreate(parsedToken: any, googleId: string): Promise<ApiErro
   if (user) {
     return user
   } else {
+    const password = generateRandomPassword(googleId)
     // create newUser if not exist in db
-    return create({ firstName, lastName, email, googleId, username: email, password: googleId })
+    return create({ firstName, lastName, email, googleId, username: email, password })
   }
 }
 
-function update(userId: string, update: Partial<UserDocument>): Promise<ApiError | UserDocument> {
-  return User.findById(userId)
-    .exec()
-    .then((user): ApiError | UserDocument | PromiseLike<UserDocument> => {
-      if (!user) {
-        throw new Error(`User ${userId} not found`)
-      }
-      if (update.firstName) {
-        user.firstName = update.firstName
-      }
-      if (update.lastName) {
-        user.lastName = update.lastName
-      }
-      if (update.username) {
-        user.username = update.username
-      }
-      if (update.role) {
-        if (update.role === 'admin') {
-          // email must be in whitelist
-          if (ADMIN_WHITELIST.includes(user.email)) {
-            user.role = update.role
-          } else return new UnauthorizedError()
-        }
+function update(user: UserDocument, update: Partial<UserDocument>): ApiError | Promise<UserDocument> {
+  if (update.firstName) {
+    user.firstName = update.firstName
+  }
+  if (update.lastName) {
+    user.lastName = update.lastName
+  }
+  if (update.username) {
+    user.username = update.username
+  }
+  if (update.role) {
+    if (update.role === 'admin') {
+      // email must be in whitelist
+      if (ADMIN_WHITELIST.includes(user.email)) {
         user.role = update.role
-      }
-      return user.save()
-    })
+      } else return new UnauthorizedError()
+    }
+    user.role = update.role
+  }
+  return user.save()
+}
+
+function updatePassword(user: UserDocument, newPassword: string): ApiError | Promise<UserDocument> {
+  //hash password
+  const hash = bcrypt.hashSync(newPassword, 10)
+  user.password = hash
+  return user.save()
 }
 
 export default {
@@ -93,4 +95,5 @@ export default {
   findByEmail,
   findOrCreate,
   update,
+  updatePassword,
 }

@@ -29,7 +29,6 @@ export const findAll = async (req: Request, res: Response, next: NextFunction) =
 export const findByFilter = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await ProductService.findByFilter(req.query)
-
     if (data.length === 0) {
       next(new NotFoundError('Products not found'))
     }
