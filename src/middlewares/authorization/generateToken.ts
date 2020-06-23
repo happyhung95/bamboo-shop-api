@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
-import { InternalServerError } from '../../helpers/apiError'
+import { InternalServerError, InvalidRequestError } from '../../helpers/apiError'
 import { UserDocument } from './../../models/User'
 import { JWT_SECRET } from '../../util/secrets'
 
@@ -9,6 +9,8 @@ import { JWT_SECRET } from '../../util/secrets'
 //! supply token in response header
 export default async function (req: Request, res: Response, next: NextFunction) {
   try {
+    if (!req.user) return next(new InvalidRequestError())
+
     const { role, _id } = req.user as UserDocument // from previous middleware
 
     const token = jwt.sign({ role, _id }, JWT_SECRET, { expiresIn: '1h' })

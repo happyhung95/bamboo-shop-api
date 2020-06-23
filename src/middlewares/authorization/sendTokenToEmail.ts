@@ -9,7 +9,7 @@ import { UserDocument } from '../../models/User'
 export default async function (req: Request, res: Response, next: NextFunction) {
   try {
     let token = res.get('Authorization')
-    token = token as string
+
     // Remove 'Bearer ' from token
     if (token.startsWith('Bearer ')) {
       token = token.slice(7, token.length).trimLeft()

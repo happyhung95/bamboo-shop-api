@@ -112,7 +112,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 }
 
 //* POST /users/resetpassword/
-export const verifyResetToken = async (req: Request, res: Response, next: NextFunction) => {
+export const approveResetToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.headers['x-access-token'] || req.headers['authorization']
     res.header('Authorization', token)
