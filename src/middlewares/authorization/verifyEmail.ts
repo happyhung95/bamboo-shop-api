@@ -15,7 +15,7 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     if (!user) return res.status(202).json({ message: 'Reset password link sent' })
 
     // Condition to generate and verify ResetToken
-    res.header('Reset password token', 'true')
+    req.body._resetPassword = true
 
     req.user = user
     next()
