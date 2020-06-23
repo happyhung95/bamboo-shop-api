@@ -11,9 +11,7 @@ export const findAll = async (req: Request, res: Response, next: NextFunction) =
       const response = await ProductService.findAllWithPagination(req.query)
 
       // if response = InvalidRequestError
-      if (response instanceof ApiError) {
-        next(response)
-      }
+      if (response instanceof ApiError) return next(response)
       // if no error
       res.status(200).json(response)
     } else {
@@ -29,9 +27,8 @@ export const findAll = async (req: Request, res: Response, next: NextFunction) =
 export const findByFilter = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = await ProductService.findByFilter(req.query)
-    if (data.length === 0) {
-      next(new NotFoundError('Products not found'))
-    }
+
+    if (data.length === 0) return next(new NotFoundError('Products not found'))
 
     res.status(200).json()
   } catch (error) {
@@ -65,7 +62,6 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     })
 
     await ProductService.create(product)
-    console.log('in CreateProduct', product)
     res.status(201).json(product)
   } catch (error) {
     console.log('error in createProduct', error)
@@ -99,6 +95,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await ProductService.deleteProduct(req.params.productId)
+
     res.status(204).end()
   } catch (error) {
     if (error.name === 'CastError') {

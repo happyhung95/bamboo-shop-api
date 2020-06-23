@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 
-import { UnauthorizedError, NotFoundError, InvalidRequestError, InternalServerError } from '../../helpers/apiError'
+import {
+  UnauthorizedError,
+  NotFoundError,
+  InvalidRequestError,
+  InternalServerError,
+  ForbiddenError,
+} from '../../helpers/apiError'
 import User, { UserDocument } from './../../models/User'
 
 //! require params userId in request OR req.user
@@ -11,6 +17,8 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     // will not fetch user if already exists from previous middleware
     const user = req.user ? (req.user as UserDocument) : await User.findById(req.params.userId).exec()
     if (!user) return next(new NotFoundError('User not found'))
+
+    if (!user.active) return next(new ForbiddenError('User is temporarily banned. Please contact admin'))
 
     const { _id, role } = req.body._token // from previous middleware
     const authorizedRoles = ['user', 'admin']

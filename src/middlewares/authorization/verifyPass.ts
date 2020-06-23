@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 
 import User, { UserDocument } from './../../models/User'
-import { NotFoundError, InternalServerError, InvalidRequestError } from '../../helpers/apiError'
+import { NotFoundError, InternalServerError, InvalidRequestError, ForbiddenError } from '../../helpers/apiError'
 
 //! supply req.user
 export default async function (req: Request, res: Response, next: NextFunction) {
@@ -24,6 +24,8 @@ export default async function (req: Request, res: Response, next: NextFunction) 
 
     // verify succeeded, will not fetch user if already exists from previous middleware
     user = req.user ? (req.user as UserDocument) : await User.findById(user._id).exec()
+
+    if (!user!.active) return next(new ForbiddenError('User is temporarily banned. Please contact admin'))
 
     req.user = user!
     next()
