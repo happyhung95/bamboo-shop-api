@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 import { UnauthorizedError, NotFoundError, InvalidRequestError, InternalServerError } from '../../helpers/apiError'
-import { UserDocument } from './../../models/User'
-import User from '../../models/User'
+import User, { UserDocument } from './../../models/User'
 
 //! require params userId in request OR req.user
 //! require req.body_token (token payload)

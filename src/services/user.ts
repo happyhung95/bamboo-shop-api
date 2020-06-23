@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 
 import User, { UserDocument } from '../models/User'
 import ADMIN_WHITELIST from '../helpers/adminWhitelist'
-import ApiError, { UnauthorizedError, NotFoundError } from '../helpers/apiError'
+import ApiError, { UnauthorizedError, InvalidRequestError } from '../helpers/apiError'
 import generateRandomPassword from '../util/generatePassword'
 
 function changeAccountStatus(username: string, ban: boolean): Promise<UserDocument> {
@@ -21,26 +21,30 @@ function changeAccountStatus(username: string, ban: boolean): Promise<UserDocume
     })
 }
 
-function create(reqBody: any): Promise<UserDocument> {
-  const { googleId = '', firstName, lastName, email, username } = reqBody
-  let { password } = reqBody
+function create(reqBody: any): Promise<UserDocument> | ApiError {
+  try {
+    const { googleId = '', firstName, lastName, email, username } = reqBody
+    let { password } = reqBody
 
-  //hash password
-  password = bcrypt.hashSync(password, 10)
+    //hash password
+    password = bcrypt.hashSync(password, 10)
 
-  // if email in the admin whitelist, create admin account
-  const role = ADMIN_WHITELIST.includes(email) ? 'admin' : 'user'
+    // if email in the admin whitelist, create admin account
+    const role = ADMIN_WHITELIST.includes(email) ? 'admin' : 'user'
 
-  const user = new User({
-    googleId,
-    firstName,
-    lastName,
-    email,
-    role,
-    username,
-    password,
-  })
-  return user.save()
+    const user = new User({
+      googleId,
+      firstName,
+      lastName,
+      email,
+      role,
+      username,
+      password,
+    })
+    return user.save()
+  } catch (error) {
+    return new InvalidRequestError()
+  }
 }
 
 function findByEmail(email: string): Promise<UserDocument | null> {

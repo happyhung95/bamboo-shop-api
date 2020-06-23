@@ -11,6 +11,7 @@ export type UserDocument = Document & {
   active: boolean;
   wishList: mongoose.Types.ObjectId[]; //* array of product IDs
   orders: mongoose.Types.ObjectId[]; //* array of order IDs
+  toJson: Function;
 }
 
 const userSchema = new mongoose.Schema(

@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 
-import { UserDocument } from './../../models/User'
+import User, { UserDocument } from './../../models/User'
 import { NotFoundError, InternalServerError, InvalidRequestError } from '../../helpers/apiError'
-import User from '../../models/User'
 
 //! supply req.user
 export default async function (req: Request, res: Response, next: NextFunction) {
@@ -21,11 +20,11 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     const match = await bcrypt.compare(password, user.password)
 
     // verify failed
-    if (!match) {
-      return next(new NotFoundError('User not found'))
-    }
+    if (!match) return next(new NotFoundError('User not found'))
+
     // verify succeeded, will not fetch user if already exists from previous middleware
     user = req.user ? (req.user as UserDocument) : await User.findById(user._id).exec()
+
     req.user = user!
     next()
   } catch (error) {

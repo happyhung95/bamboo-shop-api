@@ -48,6 +48,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(lusca.xframe('SAMEORIGIN'))
 app.use(lusca.xssProtection(true))
 
+//Validate request for POST and PUT
+app.use(apiContentType)
+
 //Use Passport
 app.use(passport.initialize())
 passport.use(GoogleStrategy)

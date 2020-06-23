@@ -11,8 +11,7 @@ export default async function (req: Request, res: Response, next: NextFunction) 
   try {
     const { role, _id } = req.user as UserDocument // from previous middleware
 
-    //TODO: add { expiresIn: '1h' }
-    const token = jwt.sign({ role, _id }, JWT_SECRET)
+    const token = jwt.sign({ role, _id }, JWT_SECRET, { expiresIn: '1h' })
 
     // add token to response header
     res.header('Authorization', `Bearer ${token}`)

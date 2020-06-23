@@ -1,7 +1,7 @@
 import express from 'express'
 
 import {
-  createUser,
+  signUp,
   signIn,
   findById,
   updateUser,
@@ -10,6 +10,7 @@ import {
   resetPassword,
   verifyResetToken,
 } from '../controllers/user'
+import createUser from '../middlewares/user/createUser'
 import checkUserAuthorization from '../middlewares/authorization/checkUserAuth'
 import verifyPassword from '../middlewares/authorization/verifyPass'
 import generateToken from '../middlewares/authorization/generateToken'
@@ -21,7 +22,7 @@ import sendTokenToEmail from '../middlewares/authorization/sendTokenToEmail'
 const router = express.Router()
 
 // Every path we define here will get /api/v1/users prefix
-router.post('/signup', createUser)
+router.post('/signup', createUser, generateToken, signUp)
 router.post('/signin', verifyPassword, generateToken, signIn)
 router.post('/signin/google', verifyGoogleToken, generateToken, signIn)
 router.get('/:userId', findById)
