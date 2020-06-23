@@ -9,6 +9,7 @@ import path from 'path'
 import mongoose from 'mongoose'
 import passport from 'passport'
 import bluebird from 'bluebird'
+import morgan from 'morgan'
 
 import { MONGODB_URI } from './util/secrets'
 
@@ -47,9 +48,6 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(lusca.xframe('SAMEORIGIN'))
 app.use(lusca.xssProtection(true))
-
-//Validate request for POST and PUT
-app.use(apiContentType)
 
 //Use Passport
 app.use(passport.initialize())
