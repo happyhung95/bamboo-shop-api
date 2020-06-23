@@ -13,7 +13,13 @@ export default async function (req: Request, res: Response, next: NextFunction) 
 
     const { role, _id } = req.user as UserDocument // from previous middleware
 
-    const token = jwt.sign({ role, _id }, JWT_SECRET, { expiresIn: '1h' })
+    // this header come from verifyEmail middleware
+    const resetPassword = res.get('Reset password token')
+
+    // create signIn token OR reset password token
+    const payload = resetPassword === 'true' ? { role, _id, resetPassToken: true } : { role, _id }
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
 
     // add token to response header
     res.header('Authorization', `Bearer ${token}`)

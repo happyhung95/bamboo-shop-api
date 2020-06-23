@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 
 import { InternalServerError, InvalidRequestError } from '../../helpers/apiError'
 import User from '../../models/User'
+import logger from '../../util/logger'
 
 //! supply req.user
 export default async function (req: Request, res: Response, next: NextFunction) {
@@ -12,6 +13,9 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     const user = await User.findOne({ email }).exec()
     // return success even if no email match found
     if (!user) return res.status(202).json({ message: 'Reset password link sent' })
+
+    // Condition to generate and verify ResetToken
+    res.header('Reset password token', 'true')
 
     req.user = user
     next()

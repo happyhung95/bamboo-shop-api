@@ -2,7 +2,12 @@ import { Request, Response, NextFunction } from 'express'
 
 import User, { UserDocument } from '../models/User'
 import UserService from '../services/user'
-import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } from '../helpers/apiError'
+import ApiError, {
+  NotFoundError,
+  InvalidRequestError,
+  InternalServerError,
+  UnauthorizedError,
+} from '../helpers/apiError'
 
 //* PUT /admin/user/ban/:username
 export const changeAccountStatus = async (req: Request, res: Response, next: NextFunction) => {
@@ -112,10 +117,14 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 }
 
 //* POST /users/resetpassword/
-export const approveResetToken = async (req: Request, res: Response, next: NextFunction) => {
+export const approveResetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const { resetPassToken } = req.body._token
+    if (!resetPassToken) return next(new UnauthorizedError())
+
     const token = req.headers['x-access-token'] || req.headers['authorization']
     res.header('Authorization', token)
+
     res.status(200).json({ message: 'Reset token is verified, user can reset password' })
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))
@@ -125,9 +134,12 @@ export const approveResetToken = async (req: Request, res: Response, next: NextF
 //* POST /users/resetpassword/verified
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { _id } = req.body._token
+    const { _id, resetPassToken } = req.body._token
+    if (!resetPassToken) return next(new UnauthorizedError())
+
     const { newPassword } = req.body
     if (!newPassword) return next(new InvalidRequestError())
+
     const currentUser = await User.findById(_id).exec()
     await UserService.updatePassword(currentUser as UserDocument, newPassword)
 
