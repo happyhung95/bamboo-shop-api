@@ -2,9 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 
 import { InternalServerError, InvalidRequestError } from '../../helpers/apiError'
 import User from '../../models/User'
-import logger from '../../util/logger'
 
-//! supply req.user
+//! supply req.user AND req.body._resetPassword
 export default async function (req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body

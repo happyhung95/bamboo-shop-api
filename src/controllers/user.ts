@@ -18,7 +18,7 @@ export const changeAccountStatus = async (req: Request, res: Response, next: Nex
     const username = req.params.username
     const updatedUser = await UserService.changeAccountStatus(username, ban)
 
-    res.status(204).json(updatedUser)
+    res.status(200).json(updatedUser)
   } catch (error) {
     if (error.name === 'CastError') {
       next(new NotFoundError('User not found', error))
@@ -77,7 +77,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
       next(updatedUser) // UnauthorizedError
     }
 
-    res.status(204).json(updatedUser)
+    res.status(200).json(updatedUser)
   } catch (error) {
     if (error.name === 'CastError') {
       next(new NotFoundError('User not found', error))

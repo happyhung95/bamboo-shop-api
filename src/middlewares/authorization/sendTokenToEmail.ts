@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer'
 
 import { InternalServerError } from '../../helpers/apiError'
 import { UserDocument } from '../../models/User'
+import { ETHEREAL_USER_SECRET, ETHEREAL_PASSWORD_SECRET } from '../../util/secrets'
 
 //! require token in response header and req.user
 //! send email and remove token from response header
@@ -19,15 +20,15 @@ export default async function (req: Request, res: Response, next: NextFunction) 
 
     const { email: recipientEmail } = req.user as UserDocument
 
-    // Generate test SMTP service account from ethereal.email for testing,
+    // Test SMTP service account from ethereal.email for testing,
     // No email is actually sent, check from ethereal mailbox
     const transporter = nodemailer.createTransport({
       host: 'smtp.ethereal.email',
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: 'helmer.stokes68@ethereal.email', // generated ethereal user
-        pass: '7HxnDpx7dE6hFG7Js5', // generated ethereal password
+        user: ETHEREAL_USER_SECRET,
+        pass: ETHEREAL_PASSWORD_SECRET,
       },
     })
 
