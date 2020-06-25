@@ -10,14 +10,16 @@ import {
   resetPassword,
   approveResetPassword,
 } from '../controllers/user'
-import createUser from '../middlewares/user/createUser'
-import checkUserAuthorization from '../middlewares/authorization/checkUserAuth'
-import verifyPassword from '../middlewares/authorization/verifyPass'
-import generateToken from '../middlewares/authorization/generateToken'
-import verifyToken from '../middlewares/authorization/verifyToken'
-import verifyGoogleToken from '../middlewares/authorization/verifyGoogle'
-import verifyEmail from '../middlewares/authorization/verifyEmail'
-import sendTokenToEmail from '../middlewares/authorization/sendTokenToEmail'
+import {
+  generateToken,
+  verifyPassword,
+  verifyGoogleToken,
+  checkUserAuthorization,
+  verifyToken,
+  verifyEmail,
+  sendTokenToEmail,
+} from '../middlewares/authorization/'
+import { createUser } from '../middlewares/user/'
 
 const router = express.Router()
 

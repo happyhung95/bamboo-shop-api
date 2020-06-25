@@ -2,8 +2,7 @@ import express from 'express'
 
 import { createProduct, updateProduct, deleteProduct } from '../controllers/product'
 import { changeAccountStatus } from '../controllers/user'
-import checkAdminAuthorization from '../middlewares/authorization/checkAdminAuth'
-import verifyToken from '../middlewares/authorization/verifyToken'
+import { checkAdminAuthorization, verifyToken } from '../middlewares/authorization/'
 
 const router = express.Router()
 
