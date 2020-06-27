@@ -70,6 +70,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
     //will not fetch user if already exists from previous middleware
     const currentUser = req.user ? req.user : await User.findById(req.params.userId).exec()
     const update = req.body
+
     const updatedUser = await UserService.update(currentUser as UserDocument, update)
 
     if (updatedUser instanceof ApiError) {
