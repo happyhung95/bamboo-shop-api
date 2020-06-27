@@ -25,8 +25,6 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     // verify succeeded, will not fetch user if already exists from previous middleware
     user = req.user ? (req.user as UserDocument) : await User.findById(user._id).exec()
 
-    if (!user!.active) return next(new ForbiddenError('User is temporarily banned. Please contact admin'))
-
     req.user = user!
     next()
   } catch (error) {

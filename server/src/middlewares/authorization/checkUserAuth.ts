@@ -18,8 +18,6 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     const user = req.user ? (req.user as UserDocument) : await User.findById(req.params.userId).exec()
     if (!user) return next(new NotFoundError('User not found'))
 
-    if (!user.active) return next(new ForbiddenError('User is temporarily banned. Please contact admin'))
-
     const { _id, role } = req.body._token // from previous middleware
     const authorizedRoles = ['user', 'admin']
 

@@ -18,6 +18,7 @@ import {
   verifyToken,
   verifyEmail,
   sendTokenToEmail,
+  checkAccountStatus,
 } from '../middlewares/authorization/'
 import { createUser } from '../middlewares/user/'
 
@@ -25,11 +26,11 @@ const router = express.Router()
 
 // Every path we define here will get /api/v1/users prefix
 router.post('/signup', createUser, generateToken, signUp)
-router.post('/signin', verifyPassword, generateToken, signIn)
+router.post('/signin', verifyPassword, checkAccountStatus, generateToken, signIn)
 router.post('/signin/google', verifyGoogleToken, generateToken, signIn)
 router.get('/:userId', findById)
-router.patch('/:userId', verifyToken, checkUserAuthorization, updateUser)
-router.post('/changepassword', verifyToken, verifyPassword, checkUserAuthorization, renewPassword)
+router.patch('/:userId', verifyToken, checkUserAuthorization, checkAccountStatus, updateUser)
+router.post('/changepassword', verifyToken, verifyPassword, checkAccountStatus, checkUserAuthorization, renewPassword)
 router.post('/forgotpassword', verifyEmail, generateToken, sendTokenToEmail, forgotPassword)
 router.post('/resetpassword', verifyToken, approveResetPassword)
 router.post('/resetpassword/verified', verifyToken, resetPassword)
