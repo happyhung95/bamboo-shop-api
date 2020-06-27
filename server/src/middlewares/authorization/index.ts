@@ -6,6 +6,7 @@ import verifyToken from './verifyToken'
 import verifyGoogleToken from './verifyGoogle'
 import verifyEmail from './verifyEmail'
 import sendTokenToEmail from './sendTokenToEmail'
+import checkAccountStatus from './checkAccountStatus'
 
 export {
   checkUserAuthorization,
@@ -16,4 +17,5 @@ export {
   verifyToken,
   verifyGoogleToken,
   sendTokenToEmail,
+  checkAccountStatus,
 }
