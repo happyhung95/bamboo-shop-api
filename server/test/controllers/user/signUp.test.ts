@@ -4,7 +4,6 @@ import app from '../../../src/app'
 import * as dbHelper from '../../db-helper'
 import ADMIN_WHITELIST from '../../../src/helpers/adminWhitelist'
 
-
 const user = {
   firstName: 'test',
   lastName: 'suite',
@@ -21,14 +20,15 @@ const admin = {
   password: 'testPassword',
 }
 
-const invalidUser = {
+const missingEmail = {
   firstName: 'test',
   lastName: 'suite',
+  //mising email
   username: 'testUsername',
   password: 'testPassword',
 }
 
-describe('user signUp route', () => {
+describe('signUp route', () => {
   beforeAll(async () => {
     await dbHelper.connect()
   })
@@ -59,8 +59,8 @@ describe('user signUp route', () => {
     expect(res.body).not.toHaveProperty('password')
     expect(res.get('authorization')).toMatch(/Bearer /)
   })
-  it('should return invalid request', async () => {
-    const res = await request(app).post('/api/v1/users/signup').send(invalidUser)
+  it('should return invalid request - missing email', async () => {
+    const res = await request(app).post('/api/v1/users/signup').send(missingEmail)
     expect(res.status).toBe(400)
   })
   //TODO: ask about this test

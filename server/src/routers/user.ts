@@ -30,7 +30,7 @@ router.post('/signin', verifyPassword, checkAccountStatus, generateToken, signIn
 router.post('/signin/google', verifyGoogleToken, generateToken, signIn)
 router.get('/:userId', findById)
 router.patch('/:userId', verifyToken, checkUserAuthorization, checkAccountStatus, updateUser)
-router.post('/changepassword', verifyToken, verifyPassword, checkAccountStatus, checkUserAuthorization, renewPassword)
+router.put('/changepassword', verifyToken, verifyPassword, checkAccountStatus, checkUserAuthorization, renewPassword)
 router.post('/forgotpassword', verifyEmail, generateToken, sendTokenToEmail, forgotPassword)
 router.post('/resetpassword', verifyToken, approveResetPassword)
 router.post('/resetpassword/verified', verifyToken, resetPassword)

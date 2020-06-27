@@ -20,7 +20,7 @@ const falseUserId = '5sd4as5fds2f1sef'
 
 let userId: string
 
-describe('get User route ', () => {
+describe('getUser route ', () => {
   beforeAll(async () => {
     await dbHelper.connect()
     await request(app).post('/api/v1/users/signup').send(user)
@@ -39,7 +39,7 @@ describe('get User route ', () => {
     expect(res.body._id).toBe(userId)
     expect(res.get('authorization')).toBeUndefined()
   })
-  
+
   it('should return User Not Found - false id', async () => {
     const res = await request(app).get(`/api/v1/users/${falseUserId}`)
     expect(res.status).toBe(404)

@@ -37,14 +37,10 @@ const falseUsername = {
   newPassword: 'testPassword new',
 }
 
-const successMsg = { message: 'Password updated successfully' }
-
-const falseUserId = '5sd4as5fds2f1sef'
-
 let token: string
 let userId: string
 
-describe('change password User route ', () => {
+describe('changePassword route ', () => {
   beforeAll(async () => {
     await dbHelper.connect()
     await request(app).post('/api/v1/users/signup').send(user)
@@ -58,29 +54,35 @@ describe('change password User route ', () => {
   })
 
   it('should return OK', async () => {
-    const res = await request(app).put(`/api/v1/users/changepassword/${userId}`).set('authorization', token).send(update)
+    const res = await request(app).put(`/api/v1/users/changepassword/`).set('authorization', token).send(update)
     expect(res.status).toBe(200)
-    expect(res.body).toEqual(successMsg)
-    expect(res.get('authorization')).toBeUndefined()
-  })
-  it('should return Unauthorized Request - false id', async () => {
-    const res = await request(app).put(`/api/v1/users/changepassword/${falseUserId}`).set('authorization', token).send(update)
-    expect(res.status).toBe(401)
+    expect(res.body).toEqual({ message: 'Password updated successfully' })
     expect(res.get('authorization')).toBeUndefined()
   })
   it('should return Invalid Request - missing password', async () => {
-    const res = await request(app).put(`/api/v1/users/changepassword/${userId}`).set('authorization', token).send(missingPassword)
+    const res = await request(app)
+      .put(`/api/v1/users/changepassword/`)
+      .set('authorization', token)
+      .send(missingPassword)
     expect(res.status).toBe(400)
     expect(res.get('authorization')).toBeUndefined()
   })
   it('should return User Not Found - false password', async () => {
-    const res = await request(app).put(`/api/v1/users/changepassword/${userId}`).set('authorization', token).send(falsePassword)
+    const res = await request(app).put(`/api/v1/users/changepassword/`).set('authorization', token).send(falsePassword)
     expect(res.status).toBe(404)
     expect(res.get('authorization')).toBeUndefined()
   })
   it('should return User Not Found - false username', async () => {
-    const res = await request(app).put(`/api/v1/users/changepassword/${userId}`).set('authorization', token).send(falseUsername)
+    const res = await request(app).put(`/api/v1/users/changepassword/`).set('authorization', token).send(falseUsername)
     expect(res.status).toBe(404)
     expect(res.get('authorization')).toBeUndefined()
   })
+  //TODO: find out why?
+  // it('should return Forbidden - user is banned', async () => {
+  //   await request(app).put(`/api/v1/users/${user.username}`).send({ ban: true })
+
+  //   const res = await request(app).put(`/api/v1/users/changepassword/${userId}`).set('authorization', token).send(update)
+  //   expect(res.status).toBe(403)
+  //   expect(res.get('authorization')).toBeUndefined()
+  // })
 })
