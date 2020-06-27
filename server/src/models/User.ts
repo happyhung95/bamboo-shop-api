@@ -11,7 +11,7 @@ export type UserDocument = Document & {
   active: boolean;
   wishList: mongoose.Types.ObjectId[]; //* array of product IDs
   orders: mongoose.Types.ObjectId[]; //* array of order IDs
-  toJson: Function;
+  removePassword: Function;
 }
 
 const userSchema = new mongoose.Schema(
@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-userSchema.methods.toJSON = function () {
+userSchema.methods.removePassword = function () {
   const obj = this.toObject()
   delete obj.password
   return obj

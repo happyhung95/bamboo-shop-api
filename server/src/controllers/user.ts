@@ -32,8 +32,7 @@ export const changeAccountStatus = async (req: Request, res: Response, next: Nex
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user
-    // user.toJson() removes the password field from created user object
-    res.status(201).json((user as UserDocument).toJSON())
+    res.status(201).json((user as UserDocument).removePassword())
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new InvalidRequestError('Invalid Request', error))
