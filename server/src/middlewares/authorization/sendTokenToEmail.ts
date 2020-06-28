@@ -39,13 +39,7 @@ export default async function (req: Request, res: Response, next: NextFunction) 
       text: resetLink,
     }
 
-    transporter.sendMail(message, function (error, info) {
-      if (error) {
-        console.log(error)
-      } else {
-        console.log('Email sent: ' + info.response)
-      }
-    })
+    transporter.sendMail(message)
 
     // remove token from header
     res.set('Authorization', undefined)

@@ -27,7 +27,7 @@ const router = express.Router()
 // Every path we define here will get /api/v1/users prefix
 router.post('/signup', createUser, generateToken, signUp) //TODO: add send verification email
 router.post('/signin', verifyPassword, checkAccountStatus, generateToken, signIn)
-router.post('/signin/google', verifyGoogleToken, generateToken, signIn)
+router.post('/signin/google', verifyGoogleToken, checkAccountStatus, generateToken, signIn)
 router.get('/:userId', findById)
 router.patch('/:userId', verifyToken, checkUserAuthorization, checkAccountStatus, updateUser)
 router.put('/changepassword', verifyToken, verifyPassword, checkAccountStatus, checkUserAuthorization, renewPassword)

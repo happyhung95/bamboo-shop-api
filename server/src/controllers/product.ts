@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express'
 import Product from '../models/Product'
 import ProductService from '../services/product'
 import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } from '../helpers/apiError'
-import product from '../services/product'
 
 //* GET /products
 export const findAll = async (req: Request, res: Response, next: NextFunction) => {

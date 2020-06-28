@@ -35,18 +35,15 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     const user = req.user
     res.status(201).json((user as UserDocument).removePassword())
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      next(new InvalidRequestError('Invalid Request', error))
-    } else {
-      next(new InternalServerError('Internal Server Error', error))
-    }
+    next(new InternalServerError('Internal Server Error', error))
   }
 }
 
 //* POST /users/signin OR /users/signin/google
 export const signIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(201).json(req.user)
+    const user = req.user
+    res.status(201).json((user as UserDocument).removePassword())
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))
   }

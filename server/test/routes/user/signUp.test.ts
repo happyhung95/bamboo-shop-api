@@ -23,7 +23,7 @@ const admin = {
 const missingEmail = {
   firstName: 'test',
   lastName: 'suite',
-  //mising email
+  //missing email
   username: 'testUsername',
   password: 'testPassword',
 }
@@ -43,29 +43,27 @@ describe('signUp route', () => {
     expect(res.body).toHaveProperty('_id')
     expect(res.body).toHaveProperty('createdAt')
     expect(res.body).toHaveProperty('updatedAt')
-    expect(res.body.email).toBe('test@test.com')
     expect(res.body.role).toBe('user')
+    expect(res.body.email).toBe(user.email)
     expect(res.body).not.toHaveProperty('password')
     expect(res.get('authorization')).toMatch(/Bearer /)
   })
+
   it('should create an admin', async () => {
     const res = await request(app).post('/api/v1/users/signup').send(admin)
     expect(res.status).toBe(201)
     expect(res.body).toHaveProperty('_id')
     expect(res.body).toHaveProperty('createdAt')
     expect(res.body).toHaveProperty('updatedAt')
-    expect(res.body.email).toBe(ADMIN_WHITELIST[0])
     expect(res.body.role).toBe('admin')
+    expect(res.body.email).toBe(admin.email)
     expect(res.body).not.toHaveProperty('password')
     expect(res.get('authorization')).toMatch(/Bearer /)
   })
+
   it('should return invalid request - missing email', async () => {
     const res = await request(app).post('/api/v1/users/signup').send(missingEmail)
     expect(res.status).toBe(400)
   })
-  //TODO: ask about this test
-  // it('should return Internal Server Error - duplicate email  ', async () => {
-  //   const res = await request(app).post('/api/v1/users/signup').send(user)
-  //   expect(res.status).toBe(500)
-  // })
+
 })

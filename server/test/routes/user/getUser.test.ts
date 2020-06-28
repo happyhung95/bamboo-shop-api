@@ -2,19 +2,9 @@ import request from 'supertest'
 
 import app from '../../../src/app'
 import * as dbHelper from '../../db-helper'
+import { getUser } from '../../helper'
 
-const user = {
-  firstName: 'test',
-  lastName: 'suite',
-  email: 'test@test.com',
-  username: 'testUsername',
-  password: 'testPassword',
-}
 
-const credential = {
-  username: 'testUsername',
-  password: 'testPassword',
-}
 
 const falseUserId = '5sd4as5fds2f1sef'
 
@@ -23,9 +13,8 @@ let userId: string
 describe('getUser route ', () => {
   beforeAll(async () => {
     await dbHelper.connect()
-    await request(app).post('/api/v1/users/signup').send(user)
-    const res = await request(app).post('/api/v1/users/signin').send(credential)
-    userId = res.body._id
+    const User = await getUser()
+    userId = User.body._id
   })
 
   afterAll(async () => {

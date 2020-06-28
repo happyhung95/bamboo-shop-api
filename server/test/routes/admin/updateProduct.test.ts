@@ -2,32 +2,7 @@ import request from 'supertest'
 
 import app from '../../../src/app'
 import * as dbHelper from '../../db-helper'
-import ADMIN_WHITELIST from '../../../src/helpers/adminWhitelist'
-
-const admin = {
-  firstName: 'test',
-  lastName: 'admin',
-  email: ADMIN_WHITELIST[0],
-  username: 'testAdmin',
-  password: 'testPassword',
-}
-
-const user = {
-  firstName: 'test',
-  lastName: 'suite',
-  email: 'test@test.com',
-  username: 'testUsername',
-  password: 'testPassword',
-}
-
-const adminCred = {
-  username: 'testAdmin',
-  password: 'testPassword',
-}
-const userCred = {
-  username: 'testUsername',
-  password: 'testPassword',
-}
+import { admin, getAdminToken, getUserToken } from '../../helper'
 
 const product = {
   id: 100,
@@ -55,7 +30,7 @@ const newSizeM = {
   ],
 }
 
-const productSizeS_M = {...product, variants: [...product.variants, ...newSizeM.variants]}
+const productSizeS_M = { ...product, variants: [...product.variants, ...newSizeM.variants] }
 
 const newSizeS = {
   variants: [
@@ -81,7 +56,7 @@ const newColor = {
   ],
 }
 
-const productNewColor = {...product, variants: [...product.variants, ...newColor.variants]}
+const productNewColor = { ...product, variants: [...product.variants, ...newColor.variants] }
 
 let adminToken: string
 let userToken: string
@@ -91,13 +66,8 @@ const falseId = '5a4sd545sad'
 describe('updateProduct admin route', () => {
   beforeEach(async () => {
     await dbHelper.connect()
-
-    await request(app).post('/api/v1/users/signup').send(admin)
-    await request(app).post('/api/v1/users/signup').send(user)
-    const res = await request(app).post('/api/v1/users/signin').send(adminCred)
-    const res2 = await request(app).post('/api/v1/users/signin').send(userCred)
-    adminToken = res.get('authorization')
-    userToken = res2.get('authorization')
+    adminToken = await getAdminToken()
+    userToken = await getUserToken()
     const productRes = await request(app).post('/api/v1/admin/product').set('authorization', adminToken).send(product)
     productId = productRes.body._id
   })
@@ -157,14 +127,24 @@ describe('updateProduct admin route', () => {
       .send(newSizeM)
     expect(res.status).toBe(404)
   })
-  
+
   it('should return Cannot find route - missing product Id', async () => {
-    const res = await request(app)
-      .patch(`/api/v1/admin/product/`)
-      .set('authorization', adminToken)
-      .send(newSizeM)
+    const res = await request(app).patch(`/api/v1/admin/product/`).set('authorization', adminToken).send(newSizeM)
     expect(res.status).toBe(404)
   })
 
-  //TODO: add one test case - admin account is banned
+  it('should return Forbidden - admin is banned by another admin', async () => {
+    //ban user
+    await request(app)
+      .put(`/api/v1/admin/user/ban/${admin.username}`)
+      .set('authorization', adminToken)
+      .send({ ban: true })
+
+    const res = await request(app)
+      .patch(`/api/v1/admin/product/${productId}`)
+      .set('authorization', adminToken)
+      .send(newSizeM)
+    expect(res.status).toBe(403)
+    expect(res.get('authorization')).toBeUndefined()
+  })
 })

@@ -26,3 +26,4 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     next(new InternalServerError('Internal Server Error', error))
   }
 }
+//TODO: add validation for password change
