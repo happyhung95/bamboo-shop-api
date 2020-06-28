@@ -14,9 +14,9 @@ const user = {
 
 const admin = {
   firstName: 'test',
-  lastName: 'suite',
+  lastName: 'admin',
   email: ADMIN_WHITELIST[0],
-  username: 'testUsername',
+  username: 'testAdmin',
   password: 'testPassword',
 }
 

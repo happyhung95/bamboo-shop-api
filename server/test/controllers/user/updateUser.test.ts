@@ -42,11 +42,11 @@ describe('updateUser route ', () => {
     await dbHelper.connect()
     await request(app).post('/api/v1/users/signup').send(user)
     await request(app).post('/api/v1/users/signup').send(user2)
-    const signInRes = await request(app).post('/api/v1/users/signin').send(credential)
-    const signInRes2 = await request(app).post('/api/v1/users/signin').send(credential2)
-    token = signInRes.get('authorization')
-    userId = signInRes.body._id
-    anotherUser = signInRes2.body._id
+    const res = await request(app).post('/api/v1/users/signin').send(credential)
+    const res2 = await request(app).post('/api/v1/users/signin').send(credential2)
+    token = res.get('authorization')
+    userId = res.body._id
+    anotherUser = res2.body._id
   })
 
   afterAll(async () => {

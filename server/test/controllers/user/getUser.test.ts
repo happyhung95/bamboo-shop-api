@@ -24,8 +24,8 @@ describe('getUser route ', () => {
   beforeAll(async () => {
     await dbHelper.connect()
     await request(app).post('/api/v1/users/signup').send(user)
-    const signInRes = await request(app).post('/api/v1/users/signin').send(credential)
-    userId = signInRes.body._id
+    const res = await request(app).post('/api/v1/users/signin').send(credential)
+    userId = res.body._id
   })
 
   afterAll(async () => {
