@@ -4,6 +4,7 @@ export type CounterDocument = Document & {
   product: number;
   order: number;
 }
+//
 
 //* To count the number of generated IDs
 const counterSchema = new mongoose.Schema({

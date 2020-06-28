@@ -1,25 +1,20 @@
 import express from 'express'
 import compression from 'compression'
-import session from 'express-session'
 import bodyParser from 'body-parser'
 import lusca from 'lusca'
-import mongo from 'connect-mongo'
-import flash from 'express-flash'
-import path from 'path'
 import mongoose from 'mongoose'
 import passport from 'passport'
 import bluebird from 'bluebird'
-import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
+import csrf from 'csurf'
+import rateLimit from 'express-rate-limit'
+import redis from 'redis'
+import idempotency from 'express-idempotent-redis'
 
 import { MONGODB_URI } from './util/secrets'
-
-import productRouter from './routers/product'
-import adminRouter from './routers/admin'
-import userRouter from './routers/user'
-
-import apiErrorHandler from './middlewares/apiErrorHandler'
-import apiContentType from './middlewares/apiContentType'
 import { GoogleStrategy } from './middlewares/authorization/verifyGoogle'
+import router from './routers'
+import apiErrorHandler from './middlewares/apiErrorHandler'
 
 const app = express()
 const mongoUrl = MONGODB_URI
@@ -53,7 +48,7 @@ app.use(lusca.xssProtection(true))
 app.use(passport.initialize())
 passport.use(GoogleStrategy)
 
-// add CORS header
+// Allow all origins - CORS
 app.use((req, res, next) => {
   res.append('Access-Control-Allow-Origin', ['*'])
   res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
@@ -61,10 +56,27 @@ app.use((req, res, next) => {
   next()
 })
 
+// Add CSRF protection
+app.use(cookieParser())
+app.use(csrf({ cookie: true }))
+
+// Limit request from each user's IP, 10 requests in 10 seconds
+const requestLimiter = rateLimit({
+  windowMs: 10 * 1000, // 24 hrs in milliseconds
+  max: 10,
+  message: 'You have exceeded the 10 requests in 10 seconds limit!',
+  headers: true,
+})
+app.use(requestLimiter)
+
+app.use(
+  idempotency({
+    redisClient: redis.createClient(),
+  })
+)
+
 // Use router
-app.use('/api/v1/products', productRouter)
-app.use('/api/v1/admin', adminRouter)
-app.use('/api/v1/users', userRouter)
+app.use('/api/v1/', router)
 
 // Custom API error handler
 app.use(apiErrorHandler)

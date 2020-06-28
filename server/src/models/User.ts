@@ -16,7 +16,7 @@ export type UserDocument = Document & {
 
 const userSchema = new mongoose.Schema(
   {
-    gooogleId: {
+    googleId: {
       type: String,
       trim: true,
     },

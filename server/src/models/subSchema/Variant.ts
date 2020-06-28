@@ -3,8 +3,10 @@ import mongoose, { Document } from 'mongoose'
 export type VariantDocument = Document & {
   inStock: number;
   price: number;
+  discount: number;
   size: string;
   color: string;
+  photoUrl: string;
 }
 
 export const variantSchema = new mongoose.Schema(
@@ -19,6 +21,10 @@ export const variantSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    discount: {
+      type: Number,
+      default: 0,
+    },
     size: {
       type: String,
       required: true,
@@ -29,7 +35,11 @@ export const variantSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    // TODO: add photo links
+    photoUrl: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   { timestamps: true }
 )

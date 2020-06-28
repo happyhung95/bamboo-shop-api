@@ -2,10 +2,10 @@ import Product, { ProductDocument } from '../models/Product'
 import ApiError, { InvalidRequestError } from '../helpers/apiError'
 
 type WithPagination<T> = {
-  pageNumber: number | null
-  pageLimit: number | null
-  totalProducts: number | null
-  data: T[]
+  pageNumber: number | null;
+  pageLimit: number | null;
+  totalProducts: number | null;
+  data: T[];
 }
 
 async function findAllWithPagination(query: any): Promise<ApiError | WithPagination<ProductDocument>> {
@@ -16,7 +16,7 @@ async function findAllWithPagination(query: any): Promise<ApiError | WithPaginat
     return { pageLimit: null, pageNumber: null, totalProducts: data.length, data }
   } else {
     let { pageLimit, pageNumber } = query
-    
+
     if (!pageLimit || !pageNumber) {
       return new InvalidRequestError(
         'Invalid request - Require both pageLimit and pageNumber parameters for pagination'

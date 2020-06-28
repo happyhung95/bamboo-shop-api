@@ -7,7 +7,7 @@ import generateRandomPassword from '../util/generatePassword'
 
 async function changeAccountStatus(username: string, ban: boolean): Promise<UserDocument | ApiError> {
   const user = await User.findOne({ username }).exec()
-  if (!user) return new NotFoundError(`User not found`)
+  if (!user) return new NotFoundError('User not found')
   if (ban) {
     user.active = false
   } else {

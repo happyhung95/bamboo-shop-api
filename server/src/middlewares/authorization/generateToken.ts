@@ -6,7 +6,7 @@ import { UserDocument } from './../../models/User'
 import { JWT_SECRET } from '../../util/secrets'
 
 //! require req.user
-//! supply token in response header
+//! supply access token in response cookie
 export default async function (req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.user) return next(new InvalidRequestError())
@@ -17,10 +17,10 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     // req.body._resetPassword from verifyEmail middleware
     const payload = req.body._resetPassword ? { role, _id, resetPassToken: true } : { role, _id }
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' })
 
     // add token to response header
-    res.header('Authorization', `Bearer ${token}`)
+    res.header('Authorization', `Bearer ${accessToken}`)
     next()
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))

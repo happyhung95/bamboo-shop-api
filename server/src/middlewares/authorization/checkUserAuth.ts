@@ -1,12 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import {
-  UnauthorizedError,
-  NotFoundError,
-  InvalidRequestError,
-  InternalServerError,
-  ForbiddenError,
-} from '../../helpers/apiError'
+import { UnauthorizedError, NotFoundError, InvalidRequestError, InternalServerError } from '../../helpers/apiError'
 import User, { UserDocument } from './../../models/User'
 
 //! require params userId in request OR req.user
