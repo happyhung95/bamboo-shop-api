@@ -2,23 +2,18 @@ import bcrypt from 'bcrypt'
 
 import User, { UserDocument } from '../models/User'
 import ADMIN_WHITELIST from '../helpers/adminWhitelist'
-import ApiError, { UnauthorizedError, InvalidRequestError } from '../helpers/apiError'
+import ApiError, { UnauthorizedError, InvalidRequestError, NotFoundError } from '../helpers/apiError'
 import generateRandomPassword from '../util/generatePassword'
 
-function changeAccountStatus(username: string, ban: boolean): Promise<UserDocument> {
-  return User.findOne({ username })
-    .exec()
-    .then(user => {
-      if (!user) {
-        throw new Error(`User ${username} not found`)
-      }
-      if (ban) {
-        user.active = false
-      } else {
-        user.active = true
-      }
-      return user.save()
-    })
+async function changeAccountStatus(username: string, ban: boolean): Promise<UserDocument | ApiError> {
+  const user = await User.findOne({ username }).exec()
+  if (!user) return new NotFoundError(`User not found`)
+  if (ban) {
+    user.active = false
+  } else {
+    user.active = true
+  }
+  return user.save()
 }
 
 function create(reqBody: any): Promise<UserDocument> | ApiError {

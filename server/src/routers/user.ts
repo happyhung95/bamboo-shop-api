@@ -25,7 +25,7 @@ import { createUser } from '../middlewares/user/'
 const router = express.Router()
 
 // Every path we define here will get /api/v1/users prefix
-router.post('/signup', createUser, generateToken, signUp)
+router.post('/signup', createUser, generateToken, signUp) //TODO: add send verification email
 router.post('/signin', verifyPassword, checkAccountStatus, generateToken, signIn)
 router.post('/signin/google', verifyGoogleToken, generateToken, signIn)
 router.get('/:userId', findById)

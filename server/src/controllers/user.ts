@@ -17,8 +17,9 @@ export const changeAccountStatus = async (req: Request, res: Response, next: Nex
 
     const username = req.params.username
     const updatedUser = await UserService.changeAccountStatus(username, ban)
+    if (updatedUser instanceof ApiError) return next(updatedUser) // NotFoundError
 
-    res.status(200).json(updatedUser)
+    res.status(204).json()
   } catch (error) {
     if (error.name === 'CastError') {
       next(new NotFoundError('User not found', error))

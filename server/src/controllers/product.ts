@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import Product from '../models/Product'
 import ProductService from '../services/product'
 import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } from '../helpers/apiError'
+import product from '../services/product'
 
 //* GET /products
 export const findAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -64,7 +65,6 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     await ProductService.create(product)
     res.status(201).json(product)
   } catch (error) {
-    console.log('error in createProduct', error)
     if (error.name === 'ValidationError') {
       next(new InvalidRequestError('Invalid Request', error))
     } else {
@@ -81,7 +81,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 
     const updatedProduct = await ProductService.update(productId, update)
 
-    res.json(updatedProduct)
+    res.status(201).json(updatedProduct)
   } catch (error) {
     if (error.name === 'CastError') {
       next(new NotFoundError('Product not found', error))
