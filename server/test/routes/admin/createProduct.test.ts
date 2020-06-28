@@ -58,12 +58,12 @@ describe('createProduct admin route', () => {
     expect(res.status).toBe(401)
   })
 
-  it('should return Unauthorized Request - user token', async () => {
+  it('should return Unauthorized Request - user not admin', async () => {
     const res = await request(app).post('/api/v1/admin/product').set('authorization', userToken).send(product)
     expect(res.status).toBe(401)
   })
 
-  it('should return Invalid Request - missing name and manufacturer', async () => {
+  it('should return Invalid Request - Invalid product: missing name and manufacturer', async () => {
     const res = await request(app).post('/api/v1/admin/product').set('authorization', adminToken).send(invalidProduct)
     expect(res.status).toBe(400)
   })

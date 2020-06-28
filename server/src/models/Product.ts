@@ -1,11 +1,11 @@
 import mongoose, { Document } from 'mongoose'
-import { VarianDocument, variantSchema } from './subSchema/Variant'
+import { VariantDocument, variantSchema } from './subSchema/Variant'
 
 export type ProductDocument = Document & {
   id: number;
   name: string;
   manufacturer: string;
-  variants: VarianDocument[]; //* array of variants. One product can have multiple variant
+  variants: VariantDocument[]; //* array of variants. One product can have multiple variant
   category: string[]; //* array of category name. One product can belong to multiple categories
 }
 

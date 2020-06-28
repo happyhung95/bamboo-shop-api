@@ -6,18 +6,9 @@ import ApiError, { NotFoundError, InvalidRequestError, InternalServerError } fro
 //* GET /products
 export const findAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    //* req.query is optional so need to check
-    if (Object.keys(req.query).length !== 0) {
-      const response = await ProductService.findAllWithPagination(req.query)
-
-      // if response = InvalidRequestError
-      if (response instanceof ApiError) return next(response)
-      // if no error
-      res.status(200).json(response)
-    } else {
-      // no parameters = return data without pagination
-      res.status(200).json(await ProductService.findAll())
-    }
+    const response = await ProductService.findAllWithPagination(req.query)
+    if (response instanceof ApiError) return next(response) //InvalidRequestError
+    res.status(200).json(response)
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))
   }
@@ -30,7 +21,7 @@ export const findByFilter = async (req: Request, res: Response, next: NextFuncti
 
     if (data.length === 0) return next(new NotFoundError('Products not found'))
 
-    res.status(200).json()
+    res.status(200).json({ data })
   } catch (error) {
     next(new InternalServerError('Internal Server Error', error))
   }

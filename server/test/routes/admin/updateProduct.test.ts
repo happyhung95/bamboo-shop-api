@@ -2,22 +2,7 @@ import request from 'supertest'
 
 import app from '../../../src/app'
 import * as dbHelper from '../../db-helper'
-import { admin, getAdminToken, getUserToken } from '../../helper'
-
-const product = {
-  id: 100,
-  name: 'Light bamboo bag',
-  manufacturer: 'string',
-  variants: [
-    {
-      inStock: 100,
-      price: 19.9,
-      size: 'S',
-      color: 'light',
-    },
-  ],
-  category: ['bag'],
-}
+import { admin, getUserToken, getAdminToken, product, createProduct } from '../../helper'
 
 const newSizeM = {
   variants: [
@@ -68,7 +53,7 @@ describe('updateProduct admin route', () => {
     await dbHelper.connect()
     adminToken = await getAdminToken()
     userToken = await getUserToken()
-    const productRes = await request(app).post('/api/v1/admin/product').set('authorization', adminToken).send(product)
+    const productRes = await createProduct()
     productId = productRes.body._id
   })
 
@@ -112,7 +97,7 @@ describe('updateProduct admin route', () => {
     expect(res.status).toBe(401)
   })
 
-  it('should return Unauthorized Request - user token', async () => {
+  it('should return Unauthorized Request - user not admin', async () => {
     const res = await request(app)
       .patch(`/api/v1/admin/product/${productId}`)
       .set('authorization', userToken)
@@ -120,7 +105,7 @@ describe('updateProduct admin route', () => {
     expect(res.status).toBe(401)
   })
 
-  it('should return Product not found - false product Id', async () => {
+  it('should return Product not found - false / not existed product Id', async () => {
     const res = await request(app)
       .patch(`/api/v1/admin/product/${falseId}`)
       .set('authorization', adminToken)
@@ -128,7 +113,7 @@ describe('updateProduct admin route', () => {
     expect(res.status).toBe(404)
   })
 
-  it('should return Cannot find route - missing product Id', async () => {
+  it('should return Cannot find route - missing product Id parameters', async () => {
     const res = await request(app).patch(`/api/v1/admin/product/`).set('authorization', adminToken).send(newSizeM)
     expect(res.status).toBe(404)
   })
