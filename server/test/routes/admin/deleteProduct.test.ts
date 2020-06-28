@@ -2,23 +2,8 @@ import request from 'supertest'
 
 import app from '../../../src/app'
 import * as dbHelper from '../../db-helper'
-import { admin, getAdminToken, getUserToken } from '../../helper'
+import { admin, getUserToken, getAdminToken, createProduct } from '../../helper'
 import Product from '../../../src/models/Product'
-
-const product = {
-  id: 100,
-  name: 'Light bamboo bag',
-  manufacturer: 'string',
-  variants: [
-    {
-      inStock: 100,
-      price: 19.9,
-      size: 'S',
-      color: 'light',
-    },
-  ],
-  category: ['bag'],
-}
 
 let adminToken: string
 let userToken: string
@@ -28,9 +13,9 @@ const falseId = '5a4sd545sad'
 describe('deleteProduct admin route', () => {
   beforeEach(async () => {
     await dbHelper.connect()
-    adminToken = await getAdminToken()
     userToken = await getUserToken()
-    const productRes = await request(app).post('/api/v1/admin/product').set('authorization', adminToken).send(product)
+    adminToken = await getAdminToken()
+    const productRes = await createProduct()
     productId = productRes.body._id
   })
 
@@ -55,17 +40,17 @@ describe('deleteProduct admin route', () => {
     expect(res.status).toBe(401)
   })
 
-  it('should return Unauthorized Request - user token', async () => {
+  it('should return Unauthorized Request - user not admin', async () => {
     const res = await request(app).delete(`/api/v1/admin/product/${productId}`).set('authorization', userToken).send()
     expect(res.status).toBe(401)
   })
 
-  it('should return Product not found - false product Id', async () => {
+  it('should return Product not found - false / not exist product Id', async () => {
     const res = await request(app).delete(`/api/v1/admin/product/${falseId}`).set('authorization', adminToken).send()
     expect(res.status).toBe(404)
   })
 
-  it('should return Cannot find route - missing product Id', async () => {
+  it('should return Cannot find route - missing product Id parameter', async () => {
     const res = await request(app).delete(`/api/v1/admin/product/`).set('authorization', adminToken).send()
     expect(res.status).toBe(404)
   })

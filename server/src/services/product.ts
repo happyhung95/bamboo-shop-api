@@ -2,43 +2,47 @@ import Product, { ProductDocument } from '../models/Product'
 import ApiError, { InvalidRequestError } from '../helpers/apiError'
 
 type WithPagination<T> = {
-  pageNumber: number;
-  pageLimit: number;
-  totalProducts: number;
-  data: T[];
-}
-
-function findAll(): Promise<ProductDocument[]> {
-  return Product.find().sort({ name: 1 }).exec() // Return a Promise, without pagination
+  pageNumber: number | null
+  pageLimit: number | null
+  totalProducts: number | null
+  data: T[]
 }
 
 async function findAllWithPagination(query: any): Promise<ApiError | WithPagination<ProductDocument>> {
-  let { pageLimit, pageNumber } = query
+  // query is optional so need to check
+  if (Object.keys(query).length === 0) {
+    // Return a Promise, without pagination
+    const data = await Product.find().sort({ name: 1 }).exec()
+    return { pageLimit: null, pageNumber: null, totalProducts: data.length, data }
+  } else {
+    let { pageLimit, pageNumber } = query
+    
+    if (!pageLimit || !pageNumber) {
+      return new InvalidRequestError(
+        'Invalid request - Require both pageLimit and pageNumber parameters for pagination'
+      )
+    }
+    pageNumber = Number(query.pageNumber) // minimum 1
+    pageLimit = Number(query.pageLimit) > 10 ? Number(query.pageLimit) : 10 // minimum 10
 
-  if (!pageLimit || !pageNumber) {
-    return new InvalidRequestError('Invalid request - Require both pageLimit and pageNumber parameters for pagination')
+    const totalProducts = await Product.estimatedDocumentCount().exec()
+    const totalPages = totalProducts > pageLimit ? totalProducts / pageLimit : 1
+
+    // validate pageNumber
+    if (pageNumber < 1 || pageNumber > totalPages) {
+      return new InvalidRequestError('Invalid pageNumber')
+    }
+
+    const skippedProducts = pageLimit * (pageNumber - 1) // no need to skip on page 1
+
+    const data = await Product.find().skip(skippedProducts).limit(pageLimit).exec()
+
+    return { pageLimit, pageNumber, totalProducts, data }
   }
-
-  pageNumber = Number(query.pageNumber) // minimum 1
-  pageLimit = Number(query.pageLimit) > 10 ? Number(query.pageLimit) : 10 // minimum 10
-
-  const totalProducts = await Product.estimatedDocumentCount().exec()
-  const totalPages = totalProducts > pageLimit ? totalProducts / pageLimit : 1
-
-  // validate pageNumber
-  if (pageNumber < 1 || pageNumber > totalPages) {
-    return new InvalidRequestError('Invalid pageNumber')
-  }
-
-  const skippedProducts = pageLimit * (pageNumber - 1) // no need to skip on page 1
-
-  const data = await Product.find().skip(skippedProducts).limit(pageLimit).exec()
-
-  return { pageLimit, pageNumber, totalProducts, data }
 }
 
 function findByFilter(query: any): Promise<ProductDocument[]> {
-  const { name, category, availability, manufacturer, color } = query
+  const { name, category, availability, manufacturer, color, size } = query
   const filter: any = {}
 
   if (name) {
@@ -55,6 +59,9 @@ function findByFilter(query: any): Promise<ProductDocument[]> {
   }
   if (color) {
     filter['variants.color'] = { $regex: `${color}`, $options: 'i' }
+  }
+  if (size) {
+    filter['variants.size'] = { $regex: `${size}`, $options: 'i' }
   }
 
   return Product.find(filter).sort({ name: 1 }).exec()
@@ -120,7 +127,6 @@ function deleteProduct(productId: string): Promise<ProductDocument | null> {
 }
 
 export default {
-  findAll,
   findAllWithPagination,
   findByFilter,
   findById,

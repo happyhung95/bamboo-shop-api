@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose'
 
-export type VarianDocument = Document & {
+export type VariantDocument = Document & {
   inStock: number;
   price: number;
   size: string;
