@@ -3,7 +3,7 @@ import request from 'supertest'
 import app from '../../../src/app'
 import * as dbHelper from '../../db-helper'
 import { user, createUser, userCredential, getAdminToken } from '../../helper'
-import { GOOGLE_TOKEN, GOOGLE_TOKEN_EXPIRED } from './../../../src/util/secrets';
+import { GOOGLE_TOKEN, GOOGLE_TOKEN_EXPIRED } from './../../../src/util/secrets'
 
 // googleToken is fetched manually 
 const googleToken = {id_token : GOOGLE_TOKEN}

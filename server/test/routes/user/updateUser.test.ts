@@ -66,7 +66,7 @@ describe('updateUser route ', () => {
   })
 
   it('should return Invalid Request - missing userId param', async () => {
-    const res = await request(app).patch(`/api/v1/users/`).set('authorization', userToken).send(update)
+    const res = await request(app).patch('/api/v1/users/').set('authorization', userToken).send(update)
     expect(res.status).toBe(404)
     expect(res.get('authorization')).toBeUndefined()
   })

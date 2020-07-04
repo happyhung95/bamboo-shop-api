@@ -54,7 +54,7 @@ describe('changePassword route ', () => {
   })
 
   it('should return Cannot find route - missing username', async () => {
-    const res = await request(app).put(`/api/v1/admin/user/ban/`).set('authorization', adminToken).send({ ban: true })
+    const res = await request(app).put('/api/v1/admin/user/ban/').set('authorization', adminToken).send({ ban: true })
     expect(res.status).toBe(404)
   })
 

@@ -48,7 +48,7 @@ describe('changePassword route ', () => {
   })
 
   it('should return OK', async () => {
-    const res = await request(app).put(`/api/v1/users/changepassword/`).set('authorization', userToken).send(update)
+    const res = await request(app).put('/api/v1/users/changepassword/').set('authorization', userToken).send(update)
     expect(res.status).toBe(200)
     expect(res.body).toEqual({ message: 'Password updated successfully' })
     expect(res.get('authorization')).toBeUndefined()
@@ -56,7 +56,7 @@ describe('changePassword route ', () => {
 
   it('should return Invalid Request - missing password', async () => {
     const res = await request(app)
-      .put(`/api/v1/users/changepassword/`)
+      .put('/api/v1/users/changepassword/')
       .set('authorization', userToken)
       .send(missingPassword)
     expect(res.status).toBe(400)
@@ -65,7 +65,7 @@ describe('changePassword route ', () => {
 
   it('should return User Not Found - false password', async () => {
     const res = await request(app)
-      .put(`/api/v1/users/changepassword/`)
+      .put('/api/v1/users/changepassword/')
       .set('authorization', userToken)
       .send(falsePassword)
     expect(res.status).toBe(404)
@@ -74,7 +74,7 @@ describe('changePassword route ', () => {
 
   it('should return User Not Found - false username', async () => {
     const res = await request(app)
-      .put(`/api/v1/users/changepassword/`)
+      .put('/api/v1/users/changepassword/')
       .set('authorization', userToken)
       .send(falseUsername)
     expect(res.status).toBe(404)
@@ -88,7 +88,7 @@ describe('changePassword route ', () => {
       .set('authorization', adminToken)
       .send({ ban: true })
 
-    const res = await request(app).put(`/api/v1/users/changepassword/`).set('authorization', userToken).send(update)
+    const res = await request(app).put('/api/v1/users/changepassword/').set('authorization', userToken).send(update)
 
     expect(res.status).toBe(403)
     expect(res.get('authorization')).toBeUndefined()

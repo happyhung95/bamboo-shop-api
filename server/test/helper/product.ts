@@ -44,11 +44,11 @@ function* colorGenerator() {
 }
 
 export async function generateProducts(num: number) {
-  let catGen = categoryGenerator()
-  let numGen = quantityGenerator()
-  let originGen = manufacturerGenerator()
-  let sizeGen = sizeGenerator()
-  let colorGen = colorGenerator()
+  const catGen = categoryGenerator()
+  const numGen = quantityGenerator()
+  const originGen = manufacturerGenerator()
+  const sizeGen = sizeGenerator()
+  const colorGen = colorGenerator()
   for (let i = 1; i < num + 1; i++) {
     const category = catGen.next().value as string
     const inStock = numGen.next().value as number
