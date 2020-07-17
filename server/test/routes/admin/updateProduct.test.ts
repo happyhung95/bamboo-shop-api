@@ -114,7 +114,11 @@ describe('updateProduct admin route', () => {
   })
 
   it('should return Cannot find route - missing product Id parameters', async () => {
+<<<<<<< HEAD
     const res = await request(app).patch('/api/v1/admin/product/').set('authorization', adminToken).send(newSizeM)
+=======
+    const res = await request(app).patch(`/api/v1/admin/product/`).set('authorization', adminToken).send(newSizeM)
+>>>>>>> bff48c7404a24bf85a5649f8be299fd46023bdaa
     expect(res.status).toBe(404)
   })
 

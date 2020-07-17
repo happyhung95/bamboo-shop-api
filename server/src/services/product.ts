@@ -16,7 +16,6 @@ async function findAllWithPagination(query: any): Promise<ApiError | WithPaginat
     return { pageLimit: null, pageNumber: null, totalProducts: data.length, data }
   } else {
     let { pageLimit, pageNumber } = query
-
     if (!pageLimit || !pageNumber) {
       return new InvalidRequestError(
         'Invalid request - Require both pageLimit and pageNumber parameters for pagination'

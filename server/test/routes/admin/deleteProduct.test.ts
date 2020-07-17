@@ -51,7 +51,11 @@ describe('deleteProduct admin route', () => {
   })
 
   it('should return Cannot find route - missing product Id parameter', async () => {
+<<<<<<< HEAD
     const res = await request(app).delete('/api/v1/admin/product/').set('authorization', adminToken).send()
+=======
+    const res = await request(app).delete(`/api/v1/admin/product/`).set('authorization', adminToken).send()
+>>>>>>> bff48c7404a24bf85a5649f8be299fd46023bdaa
     expect(res.status).toBe(404)
   })
 
