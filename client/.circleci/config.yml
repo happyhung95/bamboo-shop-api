@@ -1,0 +1,72 @@
+version: 2.1
+jobs:
+  install:
+    working_directory: ~/next-redux-typescript-starter
+    docker:
+      - image: circleci/node:12.16.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run:
+          name: install
+          command: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+      - persist_to_workspace:
+          root: ~/next-redux-typescript-starter
+          paths:
+            - ./node_modules
+  test:
+    working_directory: ~/next-redux-typescript-starter
+    docker:
+      - image: circleci/node:12.16.3
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/next-redux-typescript-starter
+      - run:
+          name: test
+          command: yarn test
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+  build:
+    working_directory: ~/next-redux-typescript-starter
+    docker:
+      - image: circleci/node:12.16.3
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/next-redux-typescript-starter
+      - run:
+          name: build
+          command: yarn build
+      - persist_to_workspace:
+          root: ~/next-redux-typescript-starter
+          paths:
+            - ./.next
+
+workflows:
+  version: 2
+  test-build:
+    jobs:
+      - install:
+          filters:
+            branches:
+              ignore: master
+      - test:
+          requires:
+            - install
+          filters:
+            branches:
+              ignore: master
+      - build:
+          requires:
+            - install
+          filters:
+            branches:
+              ignore: master
+ 
