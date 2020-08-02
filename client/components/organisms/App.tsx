@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { AppAction, AppState } from '../../reducers/app'
+import { AppAction, AppState } from '../../redux/reducers/app'
 import { Header } from '../molecules/Header'
 
 type Props = {
@@ -8,12 +8,9 @@ type Props = {
 }
 
 export const App: React.FC<Props> = ({ setTitle, app }) => {
-  useEffect(
-    () => {
-      setTitle('Client Side Rendering')
-    },
-    [setTitle]
-  )
+  useEffect(() => {
+    setTitle('Client Side Rendering')
+  }, [setTitle])
 
   return (
     <>

@@ -3,5 +3,6 @@ module.exports = {
   'singleQuote': true,
   'tabWidth': 2,
   'bracketSpacing': true,
-  'trailingComma': 'es5'
+  'trailingComma': 'es5',
+  'printWidth': 120
 }

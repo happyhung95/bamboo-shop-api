@@ -1,18 +1,22 @@
-import { Store } from 'redux'
 import React from 'react'
-import { App } from '../containers/App'
-import { AllAction, RootState } from '../reducers'
-import { setTitle } from '../reducers/app'
+import { NextPage } from 'next'
+import axios from 'axios'
 
-const Index = () => <App />
+type Props = {
+  data: string[]
+}
 
-Index.getInitialProps = async ({
-  store,
-}: {
-  store: Store<RootState, AllAction>
-}) => {
-  // redux
-  store.dispatch(setTitle('Server Side Rendering'))
+const Index: NextPage<Props> = ({ data }) => (
+  <>
+    {data.map((product: any) => (
+      <div>{product.name}</div>
+    ))}
+  </>
+)
+
+Index.getInitialProps = async () => {
+  const res = await axios.get('http://localhost:3001/api/v1/products')
+  return { data: res.data.data }
 }
 
 export default Index

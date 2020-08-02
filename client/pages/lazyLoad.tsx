@@ -29,9 +29,7 @@ const LazyLoadComponent: NextPage<Props> = ({ res }) => (
 
 LazyLoadComponent.getInitialProps = async () => {
   // lazy load
-  const data = await fetch(
-    'https://hacker-news.firebaseio.com/v0/topstories.json'
-  ).then(r => r.json())
+  const data = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json').then((r) => r.json())
   return { res: data }
 }
 

@@ -35,7 +35,7 @@ mongoose
   })
 
 // Express configuration
-app.set('port', process.env.PORT || 3000)
+app.set('port', process.env.PORT || 3001)
 
 // Use common 3rd-party middlewares
 app.use(compression())
@@ -69,11 +69,11 @@ const requestLimiter = rateLimit({
 })
 app.use(requestLimiter)
 
-app.use(
-  idempotency({
-    redisClient: redis.createClient(),
-  })
-)
+// app.use(
+//   idempotency({
+//     redisClient: redis.createClient(),
+//   })
+// )
 
 // Use router
 app.use('/api/v1/', router)
