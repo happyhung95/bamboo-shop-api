@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { AppAction, AppState } from '../../redux/reducers/app'
-import { Header } from '../molecules/Header'
 
 type Props = {
   app: AppState
@@ -14,7 +13,6 @@ export const App: React.FC<Props> = ({ setTitle, app }) => {
 
   return (
     <>
-      <Header title={app.title} />
     </>
   )
 }

@@ -8,8 +8,9 @@ import { Store } from 'redux'
 import { ThemeProvider } from 'styled-components'
 
 import { configureStore } from '../store/configureStore'
-import { Menu } from '../components/molecules/Menu'
+import { Menu, Footer } from '../components/molecules'
 import { normalize } from '../constants/normalize'
+import '../styles/tailwind.css'
 
 type Props = { store: Store } & AppInitialProps & AppProps
 
@@ -42,6 +43,7 @@ const App: AppPage<Props> = ({ store, pageProps, Component }) => {
           />
           <Menu />
           <Component {...pageProps} />
+          <Footer />
         </ThemeProvider>
       </Provider>
     </>
